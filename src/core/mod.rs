@@ -1,3 +1,5 @@
+pub mod utilities;
+
 use std::sync::RwLock;
 use eo::event_init;
 use eo::events::Event;
@@ -5,14 +7,14 @@ use log::{log, Level, LevelFilter};
 use crate::item_registry::ItemRegistry;
 
 pub trait AddonStartupPoint {
-    fn initialize(&self, events: &AddonEvents);
+    fn initialize(&self, events: &AddonRegistrationEvents);
 }
 
-pub struct AddonEvents<'a> {
+pub struct AddonRegistrationEvents<'a> {
     pub item_registration: Event<'a, ItemRegistry>
 }
 
-impl<'a> AddonEvents<'a> {
+impl<'a> AddonRegistrationEvents<'a> {
     pub fn new() -> Self {
         Self {
             item_registration: event_init!(ItemRegistry)
@@ -28,7 +30,7 @@ impl Woah {
         log::set_logger(&eo::logger::EoLogger).unwrap();
         log::set_max_level(LevelFilter::max());
 
-        let events = AddonEvents::new();
+        let events = AddonRegistrationEvents::new();
         addon.initialize(&events);
         events.item_registration.notify(ItemRegistry);
     }
