@@ -1,0 +1,9 @@
+[package]
+name = "woah"
+description = "an MCBE add-on creation framework, from scratch."
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+eo = { git = "https://github.com/NaKeRNarolino/eo.git", version = "0.1.0" }
+log = "0.4.27"
