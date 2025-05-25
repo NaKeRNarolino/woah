@@ -1,0 +1,26 @@
+use crate::core::metadata::AddonMetadata;
+use crate::item::Item;
+use lazy_static::lazy_static;
+use std::sync::RwLock;
+
+pub struct CoreRegistry {
+    pub addon_metadata: RwLock<AddonMetadata>,
+    pub items: RwLock<Vec<Item>>,
+}
+
+lazy_static! {
+    pub static ref REGISTRY: CoreRegistry = CoreRegistry {
+        addon_metadata: RwLock::new(AddonMetadata::default()),
+        items: RwLock::new(Vec::new()),
+    };
+}
+
+impl CoreRegistry {
+    pub fn set_addon_metadata(&self, addon_metadata: AddonMetadata) {
+        *self.addon_metadata.write().unwrap() = addon_metadata;
+    }
+
+    pub fn register_item(&self, item: Item) {
+        self.items.write().unwrap().push(item);
+    }
+}

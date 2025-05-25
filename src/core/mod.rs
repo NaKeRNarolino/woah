@@ -1,13 +1,23 @@
 pub mod utilities;
+pub mod metadata;
+pub(crate) mod core_registry;
 
-use std::sync::RwLock;
+use crate::code_gen::CODE_GEN;
+use crate::core::core_registry::REGISTRY;
+use crate::core::metadata::AddonMetadata;
+use crate::item_registry::ItemRegistry;
 use eo::event_init;
 use eo::events::Event;
-use log::{log, Level, LevelFilter};
-use crate::item_registry::ItemRegistry;
+use log::LevelFilter;
+use std::path::PathBuf;
+use std::sync::RwLock;
 
 pub trait AddonStartupPoint {
     fn initialize(&self, events: &AddonRegistrationEvents);
+
+    fn metadata(&self) -> AddonMetadata;
+
+    fn build_path(&self) -> PathBuf;
 }
 
 pub struct AddonRegistrationEvents<'a> {
@@ -33,5 +43,17 @@ impl Woah {
         let events = AddonRegistrationEvents::new();
         addon.initialize(&events);
         events.item_registration.notify(ItemRegistry);
+
+        REGISTRY.set_addon_metadata(addon.metadata());
+
+        CODE_GEN.set_output_path(addon.build_path());
+        
+        CODE_GEN.try_generate_uuid();
+        
+        CODE_GEN.build().unwrap();
     }
+}
+
+pub trait Serializable {
+    fn serialize(&self) -> String;
 }

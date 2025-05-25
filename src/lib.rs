@@ -1,22 +1,25 @@
 mod core;
 mod item_registry;
 mod item;
+mod code_gen;
 
 #[cfg(test)]
 mod tests {
-    use eo::sjson;
-    use crate::core::{AddonStartupPoint, Woah};
-    use crate::core::utilities::Identifier;
-    use crate::item::Item;
     use super::*;
+    use crate::core::metadata::{AddonMetadata, ScriptModule};
+    use crate::core::utilities::SemVer;
+    use crate::core::{AddonStartupPoint, Woah};
+    use crate::item::Item;
+    use eo::{infix, sjson};
+    use std::path::PathBuf;
 
     struct Addon;
 
     impl AddonStartupPoint for Addon {
         fn initialize(&self, events: &core::AddonRegistrationEvents) {
             events.item_registration.subscribe(|reg| {
-                reg.register_item(
-                    Item::new(
+                infix! {
+                    reg register_item Item::new(
                         ("x", "test").into(),
                         sjson! {
                             minecraft:damage {
@@ -26,16 +29,39 @@ mod tests {
                                 value = "Test of sJSON as a primary component writing method"
                             },
                             minecraft:icon = "item_icon"
-                        }   
+                        }
                     )
-                );
+                }
             })
+        }
+
+        fn metadata(&self) -> AddonMetadata {
+            AddonMetadata::new(
+                "Woah!!!",
+                SemVer::new(1, 0, 0),
+                "NaKeR",
+                "Empty description.",
+                SemVer::new(1, 21, 80),
+                vec![
+                    ScriptModule::new(
+                        "@minecraft/server",
+                        SemVer::new_beta(2, 0, 0)
+                    ),
+                    ScriptModule::new(
+                        "@minecraft/server-ui",
+                        SemVer::new_beta(2, 0, 0)
+                    )
+                ]
+            )
+        }
+
+        fn build_path(&self) -> PathBuf {
+            PathBuf::from("./woah/test/")
         }
     }
 
     #[test]
     fn main() {
         Woah::addon(Addon);
-        
     }
 }

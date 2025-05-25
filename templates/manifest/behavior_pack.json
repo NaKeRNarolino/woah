@@ -1,0 +1,32 @@
+{
+  "format_version": 2,
+  "metadata": {
+    "authors": ["{{ author }}"]
+  },
+  "header": {
+    "name": "{{ name }}",
+    "description": "{{ description }}",
+    "min_engine_version": [{{min_engine_version}}],
+    "uuid": "{{ uuid_1 }}",
+    "version": [{{version}}]
+  },
+  "modules": [
+    {
+      "type": "data",
+      "uuid": "{{ uuid_2 }}",
+      "version": [1, 0, 0]
+    }{% if use_scripts %},
+    {
+      "type": "script",
+      "language": "javascript",
+      "uuid": "{{ uuid_3 }}",
+      "entry": "scripts/main.js",
+      "version": [1, 0, 0]
+    }{% endif %}
+  ]
+{% if use_scripts %},
+"dependencies": [
+{{ script_modules }}
+]
+{% endif %}
+}
