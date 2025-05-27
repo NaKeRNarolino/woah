@@ -4,6 +4,9 @@ use crate::core::Serializable;
 use eo::sjson::{SJsonElement, SJsonValue, TransformHashMap};
 use std::collections::HashMap;
 
+pub mod item_registry;
+pub mod client;
+
 #[derive(Debug, Clone)]
 pub struct Item {
     pub id: Identifier,

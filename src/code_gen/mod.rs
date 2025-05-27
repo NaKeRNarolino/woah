@@ -89,5 +89,34 @@ impl CodeGen {
 
             fs::write(path, item.serialize().json_format()).unwrap()
         }
+        
+        &self.build_client_items();
+    }
+    
+    pub fn build_client_items(&self) {
+        let items = REGISTRY.item_textures.read().unwrap().clone();
+        
+        let item_textures_path = self.output_path().join(format!("RP/textures/items/{}", &REGISTRY.addon_metadata.read().unwrap().name));
+        
+        fs::create_dir_all(&item_textures_path).unwrap();
+        
+        for item in &items {
+            let file_path = item_textures_path.join(
+                format!("{}.png", &item.id.render_underscore())
+            );
+            
+            item.sprite.build(file_path)
+        }
+        
+        let item_texture_json_path = self.output_path().join("RP/textures/item_texture.json");
+        
+        let mut c = tera::Context::new();
+        
+        c.insert("name", &REGISTRY.addon_metadata.read().unwrap().name);
+        c.insert("contents", &items.into_iter().map(|x| x.serialize()).collect::<Vec<String>>().join(","));
+        
+        let temp = TEMPLATES.render("items/item_texture.json", &c).unwrap();
+        
+        fs::write(item_texture_json_path, temp.json_format()).unwrap();
     }
 }

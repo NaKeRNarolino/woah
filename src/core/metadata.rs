@@ -5,12 +5,12 @@ use crate::core::Serializable;
 
 #[derive(Default)]
 pub struct AddonMetadata {
-    name: String,
-    version: SemVer,
-    author: String,
-    description: String,
-    min_engine_version: SemVer,
-    script_modules: Vec<ScriptModule>
+    pub name: String,
+    pub version: SemVer,
+    pub author: String,
+    pub description: String,
+    pub min_engine_version: SemVer,
+    pub script_modules: Vec<ScriptModule>
 }
 
 impl AddonMetadata {

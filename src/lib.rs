@@ -1,6 +1,5 @@
-mod core;
-mod item_registry;
-mod item;
+pub mod core;
+pub mod item;
 mod code_gen;
 
 #[cfg(test)]
@@ -12,6 +11,8 @@ mod tests {
     use crate::item::Item;
     use eo::{infix, sjson};
     use std::path::PathBuf;
+    use crate::core::sprite::Sprite;
+    use crate::item::client::ItemTexture;
 
     struct Addon;
 
@@ -32,7 +33,16 @@ mod tests {
                         }
                     )
                 }
-            })
+            });
+            
+            events.client_item_registration.subscribe(|reg| {
+                infix! {
+                    reg register_item_texture ItemTexture::new(
+                        ("x", "test").into(),
+                        Sprite::read("./textures/gear_details_2.png")
+                    )
+                }
+            });
         }
 
         fn metadata(&self) -> AddonMetadata {

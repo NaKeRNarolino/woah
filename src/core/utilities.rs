@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::fmt::Display;
 use serde::{Deserialize, Serialize, Serializer};
 
 #[derive(Clone, Debug, Deserialize)]
@@ -38,6 +39,12 @@ impl Serialize for Identifier {
         S: Serializer
     {
         serializer.serialize_str(&self.render())
+    }
+}
+
+impl Display for Identifier {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.render())
     }
 }
 
