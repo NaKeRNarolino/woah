@@ -55,6 +55,8 @@ impl CodeGen {
         self.build_manifest();
 
         self.build_items();
+        
+        self.build_blocks();
 
         Ok(())
     }
@@ -90,7 +92,7 @@ impl CodeGen {
             fs::write(path, item.serialize().json_format()).unwrap()
         }
         
-        &self.build_client_items();
+        self.build_client_items();
     }
     
     pub fn build_client_items(&self) {
@@ -118,5 +120,17 @@ impl CodeGen {
         let temp = TEMPLATES.render("items/item_texture.json", &c).unwrap();
         
         fs::write(item_texture_json_path, temp.json_format()).unwrap();
+    }
+    
+    pub fn build_blocks(&self) {
+        let blocks = REGISTRY.blocks.read().unwrap().clone();
+        
+        fs::create_dir_all(self.output_path().join("BP/blocks")).unwrap();
+        
+        for block in blocks {
+            fs::write(self.output_path().join(
+                format!("BP/blocks/{}.json", &block.id.render_underscore())
+            ), block.serialize().json_format()).unwrap()
+        }
     }
 }

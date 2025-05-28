@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::fmt::Display;
 use serde::{Deserialize, Serialize, Serializer};
+use crate::core::Serializable;
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct Identifier {
@@ -122,5 +123,15 @@ pub trait JsonFormat {
 impl JsonFormat for String {
     fn json_format(&self) -> String {
         formatjson::format_json(&self).unwrap()
+    }
+}
+
+pub trait SerializeVec {
+    fn serialize_vec(&self) -> Vec<String>;
+}
+
+impl<T: Serializable> SerializeVec for Vec<T> {
+    fn serialize_vec(&self) -> Vec<String> {
+        self.into_iter().map(|s| s.serialize()).collect::<Vec<String>>()
     }
 }

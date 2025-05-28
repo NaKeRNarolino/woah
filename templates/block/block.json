@@ -1,0 +1,12 @@
+{
+  "format_version": "{{ format_version }}",
+  "minecraft:block": {
+    "description": {
+      "identifier": "{{ id }}",
+      "states": { {{ states }} },
+      "traits": { {{ traits }} }
+    },
+    "components": {{components}},
+    "permutations": [{{ permutations }}]
+  }
+}
