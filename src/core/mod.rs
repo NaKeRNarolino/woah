@@ -12,7 +12,7 @@ use eo::events::Event;
 use log::LevelFilter;
 use std::path::PathBuf;
 use std::sync::RwLock;
-use crate::block::registry::BlockRegistry;
+use crate::block::registry::{BlockRegistry, ClientBlockRegistry};
 
 pub trait AddonStartupPoint {
     fn initialize(&self, events: &AddonRegistrationEvents);
@@ -26,6 +26,7 @@ pub struct AddonRegistrationEvents<'a> {
     pub item_registration: Event<'a, ItemRegistry>,
     pub client_item_registration: Event<'a, ClientItemRegistry>,
     pub block_registration: Event<'a, BlockRegistry>,
+    pub client_block_registration: Event<'a, ClientBlockRegistry>
 }
 
 impl<'a> AddonRegistrationEvents<'a> {
@@ -34,6 +35,7 @@ impl<'a> AddonRegistrationEvents<'a> {
             item_registration: event_init!(ItemRegistry),
             client_item_registration: event_init!(ClientItemRegistry),
             block_registration: event_init!(BlockRegistry),
+            client_block_registration: event_init!(ClientBlockRegistry)
         }
     }
 }
@@ -51,6 +53,7 @@ impl Woah {
         events.item_registration.notify(ItemRegistry {});
         events.client_item_registration.notify(ClientItemRegistry {});
         events.block_registration.notify(BlockRegistry {});
+        events.client_block_registration.notify(ClientBlockRegistry {});
 
         REGISTRY.set_addon_metadata(addon.metadata());
 

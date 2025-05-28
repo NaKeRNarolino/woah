@@ -2,6 +2,7 @@ pub mod state;
 pub mod permutation;
 pub mod traits;
 pub mod registry;
+pub mod client;
 
 use std::collections::HashMap;
 use eo::sjson::{SJsonElement, SJsonValue, TransformHashMap};

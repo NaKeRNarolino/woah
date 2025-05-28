@@ -14,6 +14,7 @@ mod tests {
     use eo::{infix, sjson};
     use std::path::PathBuf;
     use crate::block::Block;
+    use crate::block::client::BlockTexture;
     use crate::block::permutation::BlockPermutation;
     use crate::block::state::{BlockState, BlockStateType};
     use crate::block::traits::{BlockTrait, PlacementDirectionState};
@@ -47,7 +48,7 @@ mod tests {
             
             events.client_item_registration.subscribe(|reg| {
                 infix! {
-                    reg register_item_texture ItemTexture::new(
+                    reg register_texture ItemTexture::new(
                         ("x", "test").into(),
                         Sprite::read("./textures/gear_details_2.png")
                     )
@@ -86,6 +87,15 @@ mod tests {
                                 y_rotation_offset: 0
                             }
                         ]
+                    )
+                }
+            });
+            
+            events.client_block_registration.subscribe(|reg| {
+                infix! {
+                    reg register_texture BlockTexture::new(
+                        ("x", "test_block").into(),
+                        Sprite::read("./textures/gear_details_2.png")
                     )
                 }
             })

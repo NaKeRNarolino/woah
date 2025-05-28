@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 use image::RgbaImage;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Sprite {
     image: RgbaImage,
 }
@@ -14,6 +14,6 @@ impl Sprite {
     }
     
     pub fn build(&self, path: impl Into<PathBuf>) {
-        &self.image.save(path.into()).unwrap();
+        self.image.save(path.into()).unwrap();
     }
 }

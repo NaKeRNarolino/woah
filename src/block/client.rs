@@ -5,23 +5,23 @@ use crate::core::sprite::Sprite;
 use crate::core::utilities::Identifier;
 
 #[derive(Clone, Debug)]
-pub struct ItemTexture {
+pub struct BlockTexture {
     pub id: Identifier,
-    pub sprite: Sprite
+    pub sprite: Sprite,
 }
 
-impl ItemTexture {
+impl BlockTexture {
     pub fn new(id: Identifier, sprite: Sprite) -> Self {
         Self { id, sprite }
     }
 }
 
-impl Serializable for ItemTexture {
+impl Serializable for BlockTexture {
     fn serialize(&self) -> String {
         let mut c = tera::Context::new();
-        
-        let texture_path = format!("textures/items/{}/{}.png", &REGISTRY.addon_metadata.read().unwrap().name, &self.id.render_underscore());
-        
+
+        let texture_path = format!("textures/block/{}/{}.png", &REGISTRY.addon_metadata.read().unwrap().name, &self.id.render_underscore());
+
         c.insert("texture_path", &texture_path);
         c.insert("id", &self.id.render());
         

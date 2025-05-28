@@ -1,6 +1,6 @@
 use crate::core::core_registry::REGISTRY;
 use crate::core::metadata::{AddonBp, AddonRp};
-use crate::core::utilities::JsonFormat;
+use crate::core::utilities::{JsonFormat, SerializeVec};
 use crate::core::Serializable;
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
@@ -132,5 +132,30 @@ impl CodeGen {
                 format!("BP/blocks/{}.json", &block.id.render_underscore())
             ), block.serialize().json_format()).unwrap()
         }
+
+        self.build_block_textures();
+    }
+
+    pub fn build_block_textures(&self) {
+        let blocks = REGISTRY.block_textures.read().unwrap().clone();
+
+        fs::create_dir_all(&self.output_path().join(format!("RP/textures/block/{}", &REGISTRY.addon_metadata.read().unwrap().name))).unwrap();
+
+        for texture in &blocks {
+            let path = &self.output_path().join(format!("RP/textures/block/{}/{}.png", &REGISTRY.addon_metadata.read().unwrap().name, &texture.id.render_underscore()));
+
+            texture.sprite.build(path);
+        }
+
+        let block_texture_json_path = self.output_path().join("RP/textures/terrain_texture.json");
+
+        let mut c = tera::Context::new();
+
+        c.insert("name", &REGISTRY.addon_metadata.read().unwrap().name);
+        c.insert("content", &blocks.serialize_vec().join(","));
+
+        let contents = TEMPLATES.render("block/terrain_texture.json", &c).unwrap();
+
+        fs::write(block_texture_json_path, contents.json_format()).unwrap()
     }
 }

@@ -16,7 +16,7 @@ impl ItemRegistry {
 pub struct ClientItemRegistry {}
 
 impl ClientItemRegistry {
-    pub fn register_item_texture(&self, texture: ItemTexture) {
+    pub fn register_texture(&self, texture: ItemTexture) {
         info!("@client:item Registering item texture {}", &texture.id);
         
         REGISTRY.register_item_texture(texture);
