@@ -6,7 +6,7 @@ use crate::block::Block;
 use crate::block::client::BlockTexture;
 use crate::item::client::ItemTexture;
 
-pub struct CoreRegistry {
+pub(crate) struct CoreRegistry {
     pub addon_metadata: RwLock<AddonMetadata>,
     pub items: RwLock<Vec<Item>>,
     pub item_textures: RwLock<Vec<ItemTexture>>,
@@ -15,7 +15,7 @@ pub struct CoreRegistry {
 }
 
 lazy_static! {
-    pub static ref REGISTRY: CoreRegistry = CoreRegistry {
+    pub(crate) static ref REGISTRY: CoreRegistry = CoreRegistry {
         addon_metadata: RwLock::new(AddonMetadata::default()),
         items: RwLock::new(Vec::new()),
         item_textures: RwLock::new(Vec::new()),

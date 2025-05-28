@@ -14,23 +14,32 @@ use std::path::PathBuf;
 use std::sync::RwLock;
 use crate::block::registry::{BlockRegistry, ClientBlockRegistry};
 
+/// The core trait for creating an Add-on pack. Implement this for your addon struct.
 pub trait AddonStartupPoint {
+    /// The add-on registration initialization point. Use [AddonRegistrationEvents] provided by the function, to register stuff (both on server (BP) and client (RP)).
     fn initialize(&self, events: &AddonRegistrationEvents);
 
+    /// A function returning the [AddonMetadata](metadata::AddonMetadata) for the addon.
     fn metadata(&self) -> AddonMetadata;
 
+    /// A function returning a [PathBuf] to a path where BP and RP folders will be generated.
     fn build_path(&self) -> PathBuf;
 }
 
+/// Events for registering stuff. Subscribe to them using `.subscribe()`.
 pub struct AddonRegistrationEvents<'a> {
+    /// Item registration events. Register items here.
     pub item_registration: Event<'a, ItemRegistry>,
+    /// Client item registration events. Register item textures here.
     pub client_item_registration: Event<'a, ClientItemRegistry>,
+    /// Block registration events. Register blocks here.
     pub block_registration: Event<'a, BlockRegistry>,
+    /// Client block registration. Register block textures here.
     pub client_block_registration: Event<'a, ClientBlockRegistry>
 }
 
 impl<'a> AddonRegistrationEvents<'a> {
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         Self {
             item_registration: event_init!(ItemRegistry),
             client_item_registration: event_init!(ClientItemRegistry),
@@ -40,6 +49,8 @@ impl<'a> AddonRegistrationEvents<'a> {
     }
 }
 
+
+/// The main struct for the `Woah` framework. Use this for initializing the add-on.
 pub struct Woah;
 
 impl Woah {

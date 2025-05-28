@@ -3,6 +3,8 @@ use crate::block::Block;
 use crate::block::client::BlockTexture;
 use crate::core::core_registry::REGISTRY;
 
+
+/// The block registry. Used to register blocks.
 pub struct BlockRegistry {}
 
 impl BlockRegistry {
@@ -13,6 +15,7 @@ impl BlockRegistry {
     }
 }
 
+/// The client block registry. Used to register block textures.
 pub struct ClientBlockRegistry {}
 
 impl ClientBlockRegistry {

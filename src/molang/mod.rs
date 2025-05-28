@@ -1,5 +1,4 @@
 use std::ops::{BitAnd, BitOr};
-use std::sync::RwLock;
 use crate::core::Serializable;
 
 #[derive(Clone, Debug)]
@@ -9,6 +8,13 @@ enum MolangConcat {
     None
 }
 
+/// A struct for describing Molang statements.<br>
+/// Other statements can be programmatically appended with the operators & for `and` and | for `or`.
+/// ```rust
+/// use woah::molang::Molang;
+///
+/// Molang::new("q.x") & (Molang::new("q.y") | Molang::new("q.z"))
+/// ```
 #[derive(Clone, Debug)]
 pub struct Molang {
     pub query: String,

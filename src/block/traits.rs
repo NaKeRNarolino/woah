@@ -1,7 +1,7 @@
-use crate::block::state::BlockState;
 use crate::code_gen::TEMPLATES;
 use crate::core::Serializable;
 
+/// An enum describing Block traits.
 #[derive(Clone, Debug)]
 pub enum BlockTrait {
     PlacementDirection {
@@ -13,15 +13,22 @@ pub enum BlockTrait {
     },
 }
 
+
+/// Allowed `enabled_states` for PlacementDirection trait.
 #[derive(Clone, Debug)]
 pub enum PlacementDirectionState {
+    /// Correspondent to `minecraft:cardinal_direction`
     CardinalDirection,
+    // Correspondent to `minecraft:facing_direction`
     FacingDirection
 }
 
+/// Allowed `enabled_states` for PlacementPosition trait.
 #[derive(Clone, Debug)]
 pub enum PlacementPositionState {
+    /// Correspondent to `minecraft:block_face`
     BlockFace,
+    /// Correspondent to `minecraft:vertical_half`
     VerticalHalf
 }
 

@@ -3,6 +3,7 @@ use crate::core::core_registry::REGISTRY;
 use crate::item::client::ItemTexture;
 use crate::item::Item;
 
+/// The item registry. Used for registering Items.
 pub struct ItemRegistry {}
 
 impl ItemRegistry {
@@ -13,6 +14,8 @@ impl ItemRegistry {
     }
 }
 
+
+/// The item registry. Used for registering Item textures.
 pub struct ClientItemRegistry {}
 
 impl ClientItemRegistry {

@@ -3,6 +3,7 @@ use crate::core::core_registry::REGISTRY;
 use crate::core::utilities::SemVer;
 use crate::core::Serializable;
 
+/// Metadata for an Add-on.
 #[derive(Default)]
 pub struct AddonMetadata {
     pub name: String,
@@ -25,6 +26,7 @@ impl AddonMetadata {
     }
 }
 
+/// A struct for describing Script modules.
 #[derive(Clone)]
 pub struct ScriptModule {
     name: String,

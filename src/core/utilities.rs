@@ -3,6 +3,7 @@ use std::fmt::Display;
 use serde::{Deserialize, Serialize, Serializer};
 use crate::core::Serializable;
 
+// A struct for describing `namespace:path` style identifiers.
 #[derive(Clone, Debug, Deserialize)]
 pub struct Identifier {
     namespace: String,
@@ -49,6 +50,7 @@ impl Display for Identifier {
     }
 }
 
+/// A struct for describing `major.minor.hotfix` & `major.minor.hotfix-beta` style versions.
 #[derive(Default, Clone, Debug)]
 pub struct SemVer {
     major: u32,

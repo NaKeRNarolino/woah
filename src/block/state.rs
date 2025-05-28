@@ -3,16 +3,18 @@ use crate::code_gen::TEMPLATES;
 use crate::core::Serializable;
 use crate::core::utilities::Identifier;
 
+/// A struct describing a Block state.
 #[derive(Clone, Debug)]
 pub struct BlockState {
     id: Identifier,
     state_type: BlockStateType
 }
 
+/// An enum for all Block state types. (string and integer arrays, boolean states and integer range states)
 #[derive(Clone, Debug)]
 pub enum BlockStateType {
     String(Vec<String>),
-    Boolean(Vec<bool>),
+    Boolean(),
     Integer(Vec<i64>),
     Range(RangeInclusive<i32>)
 }
@@ -32,8 +34,8 @@ impl Serializable for BlockState {
                 
                 TEMPLATES.render("block/block_state_arr.json", &c).unwrap()
             },
-            BlockStateType::Boolean(v) => {
-                let ser = v.into_iter().map(|x| x.to_string()).collect::<Vec<String>>().join(",");
+            BlockStateType::Boolean() => {
+                let ser = vec![true, false].into_iter().map(|x| x.to_string()).collect::<Vec<String>>().join(",");
 
                 let id = &self.id.render();
 

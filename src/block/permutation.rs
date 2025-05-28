@@ -4,6 +4,7 @@ use crate::code_gen::TEMPLATES;
 use crate::core::Serializable;
 use crate::molang::Molang;
 
+/// A struct for describing Block permutations.
 #[derive(Clone, Debug)]
 pub struct BlockPermutation {
     condition: Molang,

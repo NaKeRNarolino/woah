@@ -7,6 +7,7 @@ use std::collections::HashMap;
 pub mod item_registry;
 pub mod client;
 
+/// A struct for describing Items. Use [eo::sjson!] for components.
 #[derive(Debug, Clone)]
 pub struct Item {
     pub id: Identifier,

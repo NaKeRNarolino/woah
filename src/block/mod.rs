@@ -13,6 +13,7 @@ use crate::code_gen::TEMPLATES;
 use crate::core::Serializable;
 use crate::core::utilities::{Identifier, SemVer, SerializeVec};
 
+/// A struct for describing Blocks.
 #[derive(Clone, Debug)]
 pub struct Block {
     pub id: Identifier,

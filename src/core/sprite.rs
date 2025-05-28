@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 use image::RgbaImage;
 
+/// A struct for describing textures.
 #[derive(Clone, Debug)]
 pub struct Sprite {
     image: RgbaImage,

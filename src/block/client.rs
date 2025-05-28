@@ -4,6 +4,7 @@ use crate::core::Serializable;
 use crate::core::sprite::Sprite;
 use crate::core::utilities::Identifier;
 
+/// A struct for describing Block textures.
 #[derive(Clone, Debug)]
 pub struct BlockTexture {
     pub id: Identifier,
