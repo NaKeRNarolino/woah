@@ -3,6 +3,7 @@ pub mod item;
 mod code_gen;
 pub mod block;
 pub mod molang;
+pub mod entity;
 
 #[cfg(test)]
 mod tests {

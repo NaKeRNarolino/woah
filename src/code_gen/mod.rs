@@ -9,6 +9,7 @@ use std::path::PathBuf;
 use std::sync::RwLock;
 use tera::Tera;
 use uuid::Uuid;
+use template_encoder::template_encoder;
 
 pub struct CodeGen {
     output_path: RwLock<PathBuf>
@@ -32,7 +33,13 @@ impl WoahConfig {
 }
 
 lazy_static! {
-    pub static ref TEMPLATES: Tera = Tera::new("templates/**/*").unwrap();
+    pub static ref TEMPLATES: Tera = {
+        let mut tera = Tera::default();
+        
+        template_encoder!("./templates");
+        
+        tera
+    };
 
     pub static ref CODE_GEN: CodeGen = CodeGen {
         output_path: RwLock::new(PathBuf::new())
