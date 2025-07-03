@@ -4,7 +4,7 @@ use crate::core::utilities::SemVer;
 use crate::core::Serializable;
 
 /// Metadata for an Add-on.
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct AddonMetadata {
     pub name: String,
     pub version: SemVer,

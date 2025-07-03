@@ -14,11 +14,14 @@ mod tests {
     use crate::item::Item;
     use eo::{infix, sjson};
     use std::path::PathBuf;
+    use std::sync::Arc;
     use crate::block::Block;
     use crate::block::client::BlockTexture;
     use crate::block::permutation::BlockPermutation;
     use crate::block::state::{BlockState, BlockStateType};
     use crate::block::traits::{BlockTrait, PlacementDirectionState};
+    use crate::code_gen::generator::{GeneratorInstance, PackGenerator};
+    use crate::core::bedrock_generator::WoahBedrockGenerator;
     use crate::core::sprite::Sprite;
     use crate::item::client::ItemTexture;
     use crate::molang::Molang;
@@ -46,7 +49,7 @@ mod tests {
                     ).using_format_version((1, 21, 80).into())
                 }
             });
-            
+
             events.client_item_registration.subscribe(|reg| {
                 infix! {
                     reg register_texture ItemTexture::new(
@@ -55,7 +58,7 @@ mod tests {
                     )
                 }
             });
-            
+
             events.block_registration.subscribe(|reg| {
                 infix! {
                     reg register_block Block::new(
@@ -91,7 +94,7 @@ mod tests {
                     )
                 }
             });
-            
+
             events.client_block_registration.subscribe(|reg| {
                 infix! {
                     reg register_texture BlockTexture::new(

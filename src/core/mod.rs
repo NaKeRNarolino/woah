@@ -2,6 +2,7 @@ pub mod utilities;
 pub mod metadata;
 pub(crate) mod core_registry;
 pub mod sprite;
+pub mod bedrock_generator;
 
 use crate::code_gen::CODE_GEN;
 use crate::core::core_registry::REGISTRY;
@@ -11,8 +12,10 @@ use eo::event_init;
 use eo::events::Event;
 use log::LevelFilter;
 use std::path::PathBuf;
-use std::sync::RwLock;
+use std::sync::{Arc, RwLock};
 use crate::block::registry::{BlockRegistry, ClientBlockRegistry};
+use crate::code_gen::generator::{GeneratorInstance, PackGenerator};
+use crate::core::bedrock_generator::WoahBedrockGenerator;
 
 /// The core trait for creating an Add-on pack. Implement this for your addon struct.
 pub trait AddonStartupPoint {
@@ -24,6 +27,14 @@ pub trait AddonStartupPoint {
 
     /// A function returning a [PathBuf] to a path where BP and RP folders will be generated.
     fn build_path(&self) -> PathBuf;
+
+    /// A function returning the [PackGenerator](crate::code_gen::generator::PackGenerator)s for the pack. Defaults to the default Minecraft Bedrock generator.
+    /// When passing a generator, call [.generator](crate::code_gen::generator::GeneratorInstance::generator) on it.
+    fn generators(&self) -> Vec<Arc<dyn PackGenerator>> {
+        vec![
+            WoahBedrockGenerator.generator()
+        ]
+    }
 }
 
 /// Events for registering stuff. Subscribe to them using `.subscribe()`.
@@ -35,7 +46,7 @@ pub struct AddonRegistrationEvents<'a> {
     /// Block registration events. Register blocks here.
     pub block_registration: Event<'a, BlockRegistry>,
     /// Client block registration. Register block textures here.
-    pub client_block_registration: Event<'a, ClientBlockRegistry>
+    pub client_block_registration: Event<'a, ClientBlockRegistry>,
 }
 
 impl<'a> AddonRegistrationEvents<'a> {
@@ -69,8 +80,10 @@ impl Woah {
         REGISTRY.set_addon_metadata(addon.metadata());
 
         CODE_GEN.set_output_path(addon.build_path());
-        
-        CODE_GEN.try_generate_uuid();
+
+        CODE_GEN.set_generators(
+            addon.generators()
+        );
         
         CODE_GEN.build().unwrap();
     }
