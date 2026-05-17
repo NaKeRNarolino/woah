@@ -1,6 +1,6 @@
 use std::ops::{RangeInclusive};
 use crate::code_gen::TEMPLATES;
-use crate::core::Serializable;
+use crate::bedrock::BedrockSerializable;
 use crate::core::utilities::Identifier;
 
 /// A struct describing a Block state.
@@ -19,8 +19,8 @@ pub enum BlockStateType {
     Range(RangeInclusive<i32>)
 }
 
-impl Serializable for BlockState {
-    fn serialize(&self) -> String {
+impl BedrockSerializable for BlockState {
+    fn bedrock_serialize(&self) -> String {
         match &self.state_type {
             BlockStateType::String(v) => {
                 let ser = v.into_iter().map(|x| format!("\"{x}\"")).collect::<Vec<String>>().join(",");

@@ -1,5 +1,5 @@
 use crate::code_gen::TEMPLATES;
-use crate::core::Serializable;
+use crate::bedrock::BedrockSerializable;
 
 /// An enum describing Block traits.
 #[derive(Clone, Debug)]
@@ -50,23 +50,23 @@ impl PlacementPositionState {
     }
 }
 
-impl Serializable for PlacementDirectionState {
-    fn serialize(&self) -> String {
+impl BedrockSerializable for PlacementDirectionState {
+    fn bedrock_serialize(&self) -> String {
         self.render()
     }
 }
 
-impl Serializable for PlacementPositionState {
-    fn serialize(&self) -> String {
+impl BedrockSerializable for PlacementPositionState {
+    fn bedrock_serialize(&self) -> String {
         self.render()
     }
 }
 
-impl Serializable for BlockTrait {
-    fn serialize(&self) -> String {
+impl BedrockSerializable for BlockTrait {
+    fn bedrock_serialize(&self) -> String {
         match &self {
             BlockTrait::PlacementDirection { enabled_states, y_rotation_offset } => {
-                let ser_states = enabled_states.into_iter().map(|x| format!("\"{}\"", x.serialize())).collect::<Vec<String>>().join(",");
+                let ser_states = enabled_states.into_iter().map(|x| format!("\"{}\"", x.bedrock_serialize())).collect::<Vec<String>>().join(",");
                 
                 let add = format!(",\"y_rotation_offset\": {}", y_rotation_offset);
                 
@@ -79,7 +79,7 @@ impl Serializable for BlockTrait {
                 TEMPLATES.render("block/block_trait.json", &c).unwrap()
             }
             BlockTrait::PlacementPosition { enabled_states } => {
-                let ser_states = enabled_states.into_iter().map(|x| x.serialize()).collect::<Vec<String>>().join(",");
+                let ser_states = enabled_states.into_iter().map(|x| x.bedrock_serialize()).collect::<Vec<String>>().join(",");
                 let mut c = tera::Context::new();
 
                 c.insert("id", "minecraft:placement_position");

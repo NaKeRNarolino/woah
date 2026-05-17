@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::fmt::Display;
 use serde::{Deserialize, Serialize, Serializer};
-use crate::core::Serializable;
+use crate::bedrock::BedrockSerializable;
 
 // A struct for describing `namespace:path` style identifiers.
 #[derive(Clone, Debug, Deserialize)]
@@ -56,12 +56,12 @@ pub struct SemVer {
     major: u32,
     minor: u32,
     hotfix: u32,
-    beta: bool
+    postfix: String
 }
 
 impl SemVer {
     pub fn render_dotted(&self) -> String {
-        format!("{}.{}.{}{}", self.major, self.minor, self.hotfix, if self.beta { "-beta" } else { "" })
+        format!("{}.{}.{}{}", self.major, self.minor, self.hotfix, self.postfix)
     }
 
     pub fn render_commas(&self) -> String {
@@ -69,15 +69,19 @@ impl SemVer {
     }
 
     pub fn new_beta(major: u32, minor: u32, hotfix: u32) -> Self {
-        Self { major, minor, hotfix, beta: true }
+        Self { major, minor, hotfix, postfix: "-beta".to_string() }
     }
 
     pub fn new(major: u32, minor: u32, hotfix: u32) -> Self {
-        Self { major, minor, hotfix, beta: false }
+        Self { major, minor, hotfix, postfix: "".to_string() }
+    }
+
+    pub fn new_postfix(major: u32, minor: u32, hotfix: u32, postfix: impl Into<String>) -> Self {
+        Self { major, minor, hotfix, postfix: postfix.into() }
     }
     
     pub fn latest() -> Self {
-        Self::new(1, 21, 80)
+        Self::new(1, 26, 20)
     }
 }
 
@@ -128,12 +132,12 @@ impl JsonFormat for String {
     }
 }
 
-pub trait SerializeVec {
+pub trait BedrockSerializeVec {
     fn serialize_vec(&self) -> Vec<String>;
 }
 
-impl<T: Serializable> SerializeVec for Vec<T> {
+impl<T: BedrockSerializable> BedrockSerializeVec for Vec<T> {
     fn serialize_vec(&self) -> Vec<String> {
-        self.into_iter().map(|s| s.serialize()).collect::<Vec<String>>()
+        self.into_iter().map(|s| s.bedrock_serialize()).collect::<Vec<String>>()
     }
 }

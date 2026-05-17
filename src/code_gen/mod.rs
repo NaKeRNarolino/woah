@@ -1,9 +1,9 @@
 pub mod generator;
 
 use crate::core::core_registry::REGISTRY;
-use crate::core::metadata::{AddonBp, AddonMetadata, AddonRp};
-use crate::core::utilities::{JsonFormat, SerializeVec};
-use crate::core::Serializable;
+use crate::core::metadata::PackMetadata;
+use crate::core::utilities::{BedrockSerializeVec, JsonFormat};
+use crate::bedrock::BedrockSerializable;
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use std::fs;
@@ -13,8 +13,7 @@ use tera::Tera;
 use uuid::Uuid;
 use template_encoder::template_encoder;
 use crate::code_gen::generator::{GeneratorInstance, PackGenerator};
-use crate::core::bedrock_generator::WoahBedrockGenerator;
-
+use crate::bedrock::bedrock_generator::WoahBedrockGenerator;
 type Generators = Vec<Arc<dyn PackGenerator>>;
 
 pub struct CodeGen {
@@ -76,8 +75,8 @@ impl CodeGen {
         (&*self.generators.read().unwrap()).clone()
     }
 
-    pub fn metadata(&self) -> AddonMetadata {
-        (&*REGISTRY.addon_metadata.read().unwrap()).clone()
+    pub fn metadata(&self) -> PackMetadata {
+        (&*REGISTRY.pack_metadata.read().unwrap()).clone()
     }
 
     pub fn build(&self) -> anyhow::Result<()> {
@@ -102,7 +101,7 @@ impl CodeGen {
         Ok(())
     }
 
-    pub fn build_manifest(&self, generators: &Generators, metadata: &AddonMetadata) {
+    pub fn build_manifest(&self, generators: &Generators, metadata: &PackMetadata) {
         for generator in generators {
             generator.build_manifest(
                 self.output_path(),
@@ -124,7 +123,7 @@ impl CodeGen {
         }
     }
 
-    pub fn build_items(&self, generators: &Generators, metadata: &AddonMetadata) {
+    pub fn build_items(&self, generators: &Generators, metadata: &PackMetadata) {
         let items = REGISTRY.items.read().unwrap().clone();
 
         let output = self.output_path();
@@ -136,7 +135,7 @@ impl CodeGen {
         self.build_client_items(generators, metadata);
     }
     
-    pub fn build_client_items(&self, generators: &Generators, metadata: &AddonMetadata) {
+    pub fn build_client_items(&self, generators: &Generators, metadata: &PackMetadata) {
         let items = REGISTRY.item_textures.read().unwrap().clone();
         let output = self.output_path();
 
@@ -145,7 +144,7 @@ impl CodeGen {
         }
     }
     
-    pub fn build_blocks(&self, generators: &Generators, metadata: &AddonMetadata) {
+    pub fn build_blocks(&self, generators: &Generators, metadata: &PackMetadata) {
         let blocks = REGISTRY.blocks.read().unwrap().clone();
         
         for generator in generators {
@@ -155,13 +154,13 @@ impl CodeGen {
         self.build_block_textures(generators, metadata);
     }
 
-    pub fn build_block_textures(&self, generators: &Generators, metadata: &AddonMetadata) {
+    pub fn build_block_textures(&self, generators: &Generators, metadata: &PackMetadata) {
         let blocks = REGISTRY.block_textures.read().unwrap().clone();
 
         let output = self.output_path();
 
         for generator in generators {
-            generator.build_block_textures(output.clone(), blocks.clone(), metadata);
+            generator.build_client_blocks(output.clone(), blocks.clone(), metadata);
         }
     }
 }

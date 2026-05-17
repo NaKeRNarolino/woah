@@ -1,6 +1,6 @@
 use crate::code_gen::TEMPLATES;
 use crate::core::core_registry::REGISTRY;
-use crate::core::Serializable;
+use crate::bedrock::BedrockSerializable;
 use crate::core::sprite::Sprite;
 use crate::core::utilities::Identifier;
 
@@ -17,11 +17,11 @@ impl BlockTexture {
     }
 }
 
-impl Serializable for BlockTexture {
-    fn serialize(&self) -> String {
+impl BedrockSerializable for BlockTexture {
+    fn bedrock_serialize(&self) -> String {
         let mut c = tera::Context::new();
 
-        let texture_path = format!("textures/block/{}/{}.png", &REGISTRY.addon_metadata.read().unwrap().name, &self.id.render_underscore());
+        let texture_path = format!("textures/block/{}/{}.png", &REGISTRY.pack_metadata.read().unwrap().name, &self.id.render_underscore());
 
         c.insert("texture_path", &texture_path);
         c.insert("id", &self.id.render());

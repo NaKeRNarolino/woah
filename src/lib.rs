@@ -4,125 +4,99 @@ mod code_gen;
 pub mod block;
 pub mod molang;
 pub mod entity;
+mod bedrock;
+
+use std::collections::HashMap;
+pub use eo;
+use eo::sjson::{SJsonElement, SJsonValue, TransformHashMap};
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::metadata::{AddonMetadata, ScriptModule};
-    use crate::core::utilities::SemVer;
-    use crate::core::{AddonStartupPoint, Woah};
-    use crate::item::Item;
-    use eo::{infix, sjson};
+    use crate::core::metadata::{AdditionalMetadataBuilder, PackMetadata, PackMetadataBuilder};
+    use crate::core::utilities::{Identifier, SemVer};
+    use crate::core::{PackImplementation, Woah};
+    use crate::item::{Item, ItemBuilder};
+    use eo::sjson;
     use std::path::PathBuf;
-    use std::sync::Arc;
-    use crate::block::Block;
-    use crate::block::client::BlockTexture;
-    use crate::block::permutation::BlockPermutation;
-    use crate::block::state::{BlockState, BlockStateType};
-    use crate::block::traits::{BlockTrait, PlacementDirectionState};
-    use crate::code_gen::generator::{GeneratorInstance, PackGenerator};
-    use crate::core::bedrock_generator::WoahBedrockGenerator;
+    use eo::sjson::ToSJson;
+    use image::Rgba;
+    use rand::random;
+    use crate::bedrock::metadata::{BedrockSpecificMetadata, BedrockSpecificMetadataBuilder, ScriptModule};
     use crate::core::sprite::Sprite;
     use crate::item::client::ItemTexture;
-    use crate::molang::Molang;
-
     struct Addon;
 
-    impl AddonStartupPoint for Addon {
-        fn initialize(&self, events: &core::AddonRegistrationEvents) {
+    impl PackImplementation for Addon {
+        fn initialize(&self, events: &core::PackRegistrationEvents) {
             events.item_registration.subscribe(|reg| {
-                infix! {
-                    reg register_item Item::new(
-                        ("x", "test").into(),
-                        sjson! {
-                            minecraft:damage {
-                                value = 7
-                            },
-                            minecraft:display_name {
-                                value = "Test of sJSON as a primary component writing method"
-                            },
-                            minecraft:icon = "item_icon",
-                            x:custom_component {
-                                prop = 10
-                            }
-                        }
-                    ).using_format_version((1, 21, 80).into())
+                for i in 1..=100 {
+                    let damage = i.sjson();
+                    let name = format!("Item No. {i}").sjson();
+                    let icon = format!("woah:item_icon_{i}").sjson();
+                    reg.register_item(
+                        ItemBuilder::default()
+                            .id(Identifier::new("woah", format!("item_{i}")))
+                            .components(
+                                sjson! {
+                                    minecraft:damage {
+                                       value = $damage
+                                    },
+                                    minecraft:display_name {
+                                        value = $name
+                                    },
+                                    minecraft:icon = $icon
+                                }
+                            ).build().unwrap()
+                    )
                 }
             });
 
             events.client_item_registration.subscribe(|reg| {
-                infix! {
-                    reg register_texture ItemTexture::new(
-                        ("x", "test").into(),
-                        Sprite::read("./textures/gear_details_2.png")
-                    )
-                }
-            });
+                for i in 1..=100 {
+                    let mut sprite = Sprite::read("./textures/item.png");
+                    sprite.accept(|_, _, color| {
+                        Rgba([
+                            (color.0[0] as f32 * random::<f32>()) as u8,
+                            (color.0[1] as f32 * random::<f32>()) as u8,
+                            (color.0[2] as f32 * random::<f32>()) as u8,
+                            (color.0[3] as f32 * random::<f32>()) as u8,
+                        ])
+                    });
 
-            events.block_registration.subscribe(|reg| {
-                infix! {
-                    reg register_block Block::new(
-                        ("x", "test_block").into(),
-                        sjson! {
-                            minecraft:friction {
-                                value = 0.2
-                            }
-                        }
-                    ).using_states(vec![BlockState::new(
-                        ("x", "test_block_state").into(),
-                        BlockStateType::Range(1..=3)
-                    )])
-                    .using_permutations(
-                        vec![
-                            BlockPermutation::new(
-                                Molang::new("q.block_state('x:test_block_state') == 2") | Molang::new("q.block_state('x:test_block_state') == 3"),
-                                sjson! {
-                                    minecraft:friction {
-                                        value = 0.1
-                                    }
-                                }
-                            )
-                        ]
-                    )
-                    .using_traits(
-                        vec![
-                            BlockTrait::PlacementDirection {
-                                enabled_states: vec![ PlacementDirectionState::CardinalDirection ],
-                                y_rotation_offset: 0
-                            }
-                        ]
-                    )
-                }
-            });
-
-            events.client_block_registration.subscribe(|reg| {
-                infix! {
-                    reg register_texture BlockTexture::new(
-                        ("x", "test_block").into(),
-                        Sprite::read("./textures/gear_details_2.png")
+                    reg.register_texture(
+                        ItemTexture::new(
+                            Identifier::new("woah", format!("item_icon_{i}")),
+                            sprite
+                        )
                     )
                 }
             })
         }
 
-        fn metadata(&self) -> AddonMetadata {
-            AddonMetadata::new(
-                "Woah!!!",
-                SemVer::new(1, 0, 0),
-                "NaKeR",
-                "Empty description.",
-                SemVer::new(1, 21, 80),
-                vec![
-                    ScriptModule::new(
-                        "@minecraft/server",
-                        SemVer::new_beta(2, 0, 0)
-                    ),
-                    ScriptModule::new(
-                        "@minecraft/server-ui",
-                        SemVer::new_beta(2, 0, 0)
-                    )
-                ]
-            )
+        fn metadata(&self) -> PackMetadata {
+            PackMetadataBuilder::default()
+                .name("WoahTest")
+                .version((1, 0, 0))
+                .author("NaKeR")
+                .description("Nothing here")
+                .additional(
+                    AdditionalMetadataBuilder::default()
+                        .bedrock_specific(
+                            BedrockSpecificMetadataBuilder::default()
+                                .min_engine_version((1, 26, 20))
+                                .script_modules(vec![
+                                    ScriptModule::new(
+                                        "@minecraft/server",
+                                        SemVer::new_beta(2, 0, 0)
+                                    ),
+                                    ScriptModule::new(
+                                        "@minecraft/server-ui",
+                                        SemVer::new_beta(2, 0, 0)
+                                    )
+                                ]).build().unwrap()
+                        ).build().unwrap()
+                ).build().unwrap()
         }
 
         fn build_path(&self) -> PathBuf {
@@ -132,6 +106,6 @@ mod tests {
 
     #[test]
     fn main() {
-        Woah::addon(Addon);
+        Woah::pack(Addon);
     }
 }

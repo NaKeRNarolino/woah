@@ -1,5 +1,5 @@
 use std::ops::{BitAnd, BitOr};
-use crate::core::Serializable;
+use crate::bedrock::BedrockSerializable;
 
 #[derive(Clone, Debug)]
 enum MolangConcat {
@@ -80,17 +80,17 @@ impl From<&str> for Molang {
     }
 }
 
-impl Serializable for Molang {
-    fn serialize(&self) -> String {
+impl BedrockSerializable for Molang {
+    fn bedrock_serialize(&self) -> String {
         let next = self.next.clone();
 
-        let serialized_next = next.into_iter().map(|x| x.serialize()).collect::<Vec<String>>().join(" ");
+        let serialized_next = next.into_iter().map(|x| x.bedrock_serialize()).collect::<Vec<String>>().join(" ");
 
         let serialized_self = format!("({})", &self.query);
 
         match &self.concat_mode {
             MolangConcat::And => format!("{} && ({})", serialized_self, serialized_next),
-            MolangConcat::Or => format!("{} && ({})", serialized_self, serialized_next),
+            MolangConcat::Or => format!("{} || ({})", serialized_self, serialized_next),
             MolangConcat::None => self.query.clone(),
         }
     }

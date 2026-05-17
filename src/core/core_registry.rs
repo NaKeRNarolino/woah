@@ -1,4 +1,4 @@
-use crate::core::metadata::AddonMetadata;
+use crate::core::metadata::PackMetadata;
 use crate::item::Item;
 use lazy_static::lazy_static;
 use std::sync::RwLock;
@@ -7,7 +7,7 @@ use crate::block::client::BlockTexture;
 use crate::item::client::ItemTexture;
 
 pub(crate) struct CoreRegistry {
-    pub addon_metadata: RwLock<AddonMetadata>,
+    pub pack_metadata: RwLock<PackMetadata>,
     pub items: RwLock<Vec<Item>>,
     pub item_textures: RwLock<Vec<ItemTexture>>,
     pub blocks: RwLock<Vec<Block>>,
@@ -16,7 +16,7 @@ pub(crate) struct CoreRegistry {
 
 lazy_static! {
     pub(crate) static ref REGISTRY: CoreRegistry = CoreRegistry {
-        addon_metadata: RwLock::new(AddonMetadata::default()),
+        pack_metadata: RwLock::new(PackMetadata::default()),
         items: RwLock::new(Vec::new()),
         item_textures: RwLock::new(Vec::new()),
         blocks: RwLock::new(Vec::new()),
@@ -25,8 +25,8 @@ lazy_static! {
 }
 
 impl CoreRegistry {
-    pub fn set_addon_metadata(&self, addon_metadata: AddonMetadata) {
-        *self.addon_metadata.write().unwrap() = addon_metadata;
+    pub fn set_pack_metadata(&self, addon_metadata: PackMetadata) {
+        *self.pack_metadata.write().unwrap() = addon_metadata;
     }
 
     pub fn register_item(&self, item: Item) {

@@ -5,22 +5,28 @@ pub mod registry;
 pub mod client;
 
 use std::collections::HashMap;
+use derive_builder::Builder;
 use eo::sjson::{SJsonElement, SJsonValue, TransformHashMap};
 use crate::block::permutation::BlockPermutation;
 use crate::block::state::BlockState;
 use crate::block::traits::BlockTrait;
 use crate::code_gen::TEMPLATES;
-use crate::core::Serializable;
-use crate::core::utilities::{Identifier, SemVer, SerializeVec};
+use crate::bedrock::BedrockSerializable;
+use crate::core::utilities::{Identifier, SemVer, BedrockSerializeVec};
 
 /// A struct for describing Blocks.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Builder)]
+#[builder(setter(into))]
 pub struct Block {
     pub id: Identifier,
     pub components: HashMap<String, SJsonValue>,
+    #[builder(default = "SemVer::latest()")]
     pub format_version: SemVer,
+    #[builder(default = "Vec::new()")]
     pub states: Vec<BlockState>,
+    #[builder(default = "Vec::new()")]
     pub permutations: Vec<BlockPermutation>,
+    #[builder(default = "Vec::new()")]
     pub traits: Vec<BlockTrait>
 }
 
@@ -65,8 +71,8 @@ impl Block {
     }
 }
 
-impl Serializable for Block {
-    fn serialize(&self) -> String {
+impl BedrockSerializable for Block {
+    fn bedrock_serialize(&self) -> String {
         let id = &self.id.render();
         let components = serde_json::to_string(&self.components).unwrap();
         let format_version = &self.format_version.render_dotted();
