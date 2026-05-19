@@ -1,10 +1,17 @@
+mod builder;
+
+use proc_macro::{Ident, Span};
 use std::collections::HashMap;
 use std::fs;
 use std::hash::Hash;
-use proc_macro2::TokenStream;
+use std::iter::Peekable;
+use proc_macro2::{TokenStream, TokenTree};
+use proc_macro2::token_stream::IntoIter;
 use quote::{quote, ToTokens, TokenStreamExt};
+use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseStream};
 use syn::parse_macro_input;
+use crate::builder::Builder;
 
 #[proc_macro]
 pub fn template_encoder(tokens: proc_macro::TokenStream) -> proc_macro::TokenStream {
@@ -13,6 +20,24 @@ pub fn template_encoder(tokens: proc_macro::TokenStream) -> proc_macro::TokenStr
     quote! {
         #parsed
     }.into()
+}
+
+/// The Woah macro is used for a more nicer syntax when building stuff.
+/// ```rust
+/// use woah::woah;
+///
+/// woah! {
+///     @Item {
+///         id = ("namespace", "value");
+///         components = sjson! {
+///             //...
+///         };
+///     }
+/// }
+#[proc_macro]
+pub fn woah(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    let decl = syn::parse_macro_input!(input as Builder);
+    decl.to_token_stream().into()
 }
 
 struct TemplateEncoder {

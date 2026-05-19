@@ -13,6 +13,9 @@ use crate::block::traits::BlockTrait;
 use crate::code_gen::TEMPLATES;
 use crate::bedrock::BedrockSerializable;
 use crate::core::utilities::{Identifier, SemVer, BedrockSerializeVec};
+use crate::hold_builders;
+
+hold_builders!(Block);
 
 /// A struct for describing Blocks.
 #[derive(Clone, Debug, Builder)]

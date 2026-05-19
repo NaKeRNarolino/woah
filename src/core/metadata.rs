@@ -3,6 +3,9 @@ use derive_builder::Builder;
 use eo::sjson::SJsonElement;
 use crate::core::utilities::SemVer;
 use crate::bedrock::metadata::BedrockSpecificMetadata;
+use crate::hold_builders;
+
+hold_builders!(PackMetadata, AdditionalMetadata);
 
 /// Metadata for an Add-on.
 #[derive(Default, Clone, Builder)]

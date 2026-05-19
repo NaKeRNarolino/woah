@@ -14,7 +14,7 @@ pub struct BlockState {
 #[derive(Clone, Debug)]
 pub enum BlockStateType {
     String(Vec<String>),
-    Boolean(),
+    Boolean,
     Integer(Vec<i64>),
     Range(RangeInclusive<i32>)
 }
@@ -34,7 +34,7 @@ impl BedrockSerializable for BlockState {
                 
                 TEMPLATES.render("block/block_state_arr.json", &c).unwrap()
             },
-            BlockStateType::Boolean() => {
+            BlockStateType::Boolean => {
                 let ser = vec![true, false].into_iter().map(|x| x.to_string()).collect::<Vec<String>>().join(",");
 
                 let id = &self.id.render();

@@ -18,6 +18,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "proc_macros"
+version = "0.1.0"
+dependencies = [
+ "fs_extra",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "quote"
 version = "1.0.40"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -35,16 +45,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-ident",
-]
-
-[[package]]
-name = "template_encoder"
-version = "0.1.0"
-dependencies = [
- "fs_extra",
- "proc-macro2",
- "quote",
- "syn",
 ]
 
 [[package]]

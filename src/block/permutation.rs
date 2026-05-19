@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use eo::sjson::{SJsonElement, SJsonValue, TransformHashMap};
+use eo::sjson::{SJsonElement, SJsonMacro, SJsonValue, TransformHashMap};
 use crate::code_gen::TEMPLATES;
 use crate::bedrock::BedrockSerializable;
 use crate::molang::Molang;
@@ -12,10 +12,10 @@ pub struct BlockPermutation {
 }
 
 impl BlockPermutation {
-    pub fn new(condition: Molang, components: Vec<SJsonElement>) -> Self {
+    pub fn new(condition: Molang, components: SJsonMacro) -> Self {
         Self {
             condition,
-            components: components.transform_hashmap()
+            components: components.into()
         }
     }
 }

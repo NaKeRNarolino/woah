@@ -4,9 +4,12 @@ use crate::bedrock::BedrockSerializable;
 use eo::sjson::{SJsonElement, SJsonValue, TransformHashMap};
 use std::collections::HashMap;
 use derive_builder::Builder;
+use crate::hold_builders;
 
 pub mod item_registry;
 pub mod client;
+
+hold_builders!(Item);
 
 /// A struct for describing Items. Use [eo::sjson!] for components.
 #[derive(Debug, Clone, Builder)]
@@ -17,6 +20,8 @@ pub struct Item {
     pub format_version: SemVer,
     pub components: HashMap<String, SJsonValue>
 }
+
+
 
 impl BedrockSerializable for Item {
     fn bedrock_serialize(&self) -> String {

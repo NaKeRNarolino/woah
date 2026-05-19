@@ -3,6 +3,9 @@ use crate::bedrock::BedrockSerializable;
 use crate::code_gen::{WoahConfig, TEMPLATES};
 use crate::core::core_registry::REGISTRY;
 use crate::core::utilities::SemVer;
+use crate::hold_builders;
+
+hold_builders!(BedrockSpecificMetadata);
 
 #[derive(Clone, Default, Builder)]
 #[builder(setter(into))]

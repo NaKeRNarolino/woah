@@ -11,7 +11,7 @@ use std::path::PathBuf;
 use std::sync::{Arc, RwLock};
 use tera::Tera;
 use uuid::Uuid;
-use template_encoder::template_encoder;
+use proc_macros::template_encoder;
 use crate::code_gen::generator::{GeneratorInstance, PackGenerator};
 use crate::bedrock::bedrock_generator::WoahBedrockGenerator;
 type Generators = Vec<Arc<dyn PackGenerator>>;

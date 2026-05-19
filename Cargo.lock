@@ -428,7 +428,7 @@ checksum = "48c757948c5ede0e46177b7add2e67155f70e33c07fea8284df6576da70b3719"
 [[package]]
 name = "eo"
 version = "0.1.0"
-source = "git+https://github.com/NaKeRNarolino/eo.git#3b52b211168de10c8dd520154e11cf7adfd69aae"
+source = "git+https://github.com/NaKeRNarolino/eo.git#7cc11db803dabef2fdbbc90e46215f10947e36e3"
 dependencies = [
  "colored",
  "log",
@@ -824,7 +824,7 @@ dependencies = [
 [[package]]
 name = "macros"
 version = "0.1.0"
-source = "git+https://github.com/NaKeRNarolino/eo.git#3b52b211168de10c8dd520154e11cf7adfd69aae"
+source = "git+https://github.com/NaKeRNarolino/eo.git#7cc11db803dabef2fdbbc90e46215f10947e36e3"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1131,6 +1131,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "02b3e5e68a3a1a02aad3ec490a98007cbc13c37cbe84a3cd7b8e406d76e7f778"
 dependencies = [
  "unicode-ident",
+]
+
+[[package]]
+name = "proc_macros"
+version = "0.1.0"
+dependencies = [
+ "fs_extra",
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -1508,16 +1518,6 @@ name = "target-lexicon"
 version = "0.12.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "61c41af27dd6d1e27b1b16b489db798443478cef1f06a660c96db617ba5de3b1"
-
-[[package]]
-name = "template_encoder"
-version = "0.1.0"
-dependencies = [
- "fs_extra",
- "proc-macro2",
- "quote",
- "syn",
-]
 
 [[package]]
 name = "tera"
@@ -2026,10 +2026,11 @@ dependencies = [
  "lazy_static",
  "log",
  "maplit",
+ "paste",
+ "proc_macros",
  "rand",
  "serde",
  "serde_json",
- "template_encoder",
  "tera",
  "uuid",
 ]

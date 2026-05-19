@@ -9,12 +9,13 @@ mod bedrock;
 use std::collections::HashMap;
 pub use eo;
 use eo::sjson::{SJsonElement, SJsonValue, TransformHashMap};
+pub use proc_macros::woah;
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::metadata::{AdditionalMetadataBuilder, PackMetadata, PackMetadataBuilder};
-    use crate::core::utilities::{Identifier, SemVer};
+    use crate::core::metadata::{AdditionalMetadata, AdditionalMetadataBuilder, PackMetadata, PackMetadataBuilder};
+    use crate::core::utilities::{HoldBuilder, Identifier, SemVer};
     use crate::core::{PackImplementation, Woah};
     use crate::item::{Item, ItemBuilder};
     use eo::sjson;
@@ -23,8 +24,15 @@ mod tests {
     use image::Rgba;
     use rand::random;
     use crate::bedrock::metadata::{BedrockSpecificMetadata, BedrockSpecificMetadataBuilder, ScriptModule};
+    use crate::block::Block;
+    use crate::block::client::BlockTexture;
+    use crate::block::permutation::BlockPermutation;
+    use crate::block::state::{BlockState, BlockStateType};
+    use crate::block::traits::{BlockTrait, PlacementDirectionState};
     use crate::core::sprite::Sprite;
     use crate::item::client::ItemTexture;
+    use crate::molang::Molang;
+
     struct Addon;
 
     impl PackImplementation for Addon {
@@ -35,19 +43,20 @@ mod tests {
                     let name = format!("Item No. {i}").sjson();
                     let icon = format!("woah:item_icon_{i}").sjson();
                     reg.register_item(
-                        ItemBuilder::default()
-                            .id(Identifier::new("woah", format!("item_{i}")))
-                            .components(
-                                sjson! {
+                        woah! {
+                            @Item {
+                                id = ("woah", format!("item_{i}"));
+                                components = sjson! {
                                     minecraft:damage {
-                                       value = $damage
+                                        value = $damage
                                     },
                                     minecraft:display_name {
                                         value = $name
                                     },
                                     minecraft:icon = $icon
-                                }
-                            ).build().unwrap()
+                                };
+                            }
+                        }
                     )
                 }
             });
@@ -71,32 +80,85 @@ mod tests {
                         )
                     )
                 }
+            });
+
+            events.block_registration.subscribe(|reg| {
+                reg.register_block(woah! {
+                    @Block {
+                        format_version = (1, 26, 20);
+                        id = "woah:block";
+                        states = vec![
+                            BlockState::new(
+                                "woah:val".into(),
+                                BlockStateType::Range(0..=5)
+                            ),
+                            BlockState::new(
+                                "woah:toggle".into(),
+                                BlockStateType::Boolean
+                            )
+                        ];
+                        traits = vec![
+                            BlockTrait::PlacementDirection {
+                                enabled_states: vec![PlacementDirectionState::CardinalDirection],
+                                y_rotation_offset: 0
+                            }
+                        ];
+                        components = sjson! {
+                            minecraft:display_name = "Hi"
+                        };
+                        permutations = vec![
+                            BlockPermutation::new(
+                                Molang::new("q.block_state('woah:val') > 2") & Molang::new("q.block_state('woah:toggle')"),
+                                sjson! {
+                                    minecraft:mining_speed {
+                                        speed = 10 // I don't remember the syntax let's assume this is the component
+                                    },
+                                    minecraft:material_instances {
+                                        * {
+                                            texture = "woah:block"
+                                        }
+                                    }
+                                }
+                            )
+                        ]
+                    }
+                })
+            });
+
+            events.client_block_registration.subscribe(|reg| {
+                reg.register_texture(
+                    BlockTexture::new(
+                        "woah:block".into(),
+                        Sprite::read("./textures/block.png")
+                    )
+                )
             })
         }
 
         fn metadata(&self) -> PackMetadata {
-            PackMetadataBuilder::default()
-                .name("WoahTest")
-                .version((1, 0, 0))
-                .author("NaKeR")
-                .description("Nothing here")
-                .additional(
-                    AdditionalMetadataBuilder::default()
-                        .bedrock_specific(
-                            BedrockSpecificMetadataBuilder::default()
-                                .min_engine_version((1, 26, 20))
-                                .script_modules(vec![
-                                    ScriptModule::new(
-                                        "@minecraft/server",
-                                        SemVer::new_beta(2, 0, 0)
-                                    ),
-                                    ScriptModule::new(
-                                        "@minecraft/server-ui",
-                                        SemVer::new_beta(2, 0, 0)
-                                    )
-                                ]).build().unwrap()
-                        ).build().unwrap()
-                ).build().unwrap()
+            woah! {
+                @PackMetadata {
+                    name = "WoahTest";
+                    version = (1, 0, 0);
+                    author = "NaKeR";
+                    description = "Smth";
+                    additional = @AdditionalMetadata {
+                        bedrock_specific = @BedrockSpecificMetadata {
+                            min_engine_version = (1, 26, 20);
+                            script_modules = vec![
+                                ScriptModule::new(
+                                    "@minecraft/server",
+                                    SemVer::new_beta(2, 0, 0)
+                                ),
+                                ScriptModule::new(
+                                    "@minecraft/server-ui",
+                                    SemVer::new_beta(2, 0, 0)
+                                )
+                            ];
+                        }
+                    };
+                }
+            }
         }
 
         fn build_path(&self) -> PathBuf {

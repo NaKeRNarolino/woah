@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::fmt::Display;
+use std::str::FromStr;
 use serde::{Deserialize, Serialize, Serializer};
 use crate::bedrock::BedrockSerializable;
 
@@ -19,9 +20,22 @@ impl Identifier {
     }
 }
 
-impl Into<Identifier> for (&str, &str) {
-    fn into(self) -> Identifier {
-        Identifier::new(self.0, self.1)
+impl<T, E> From<(T, E)> for Identifier
+where T:
+    Into<String>,
+E: Into<String> {
+    fn from(value: (T, E)) -> Self {
+        Self { namespace: value.0.into(), path: value.1.into() }
+    }
+}
+
+impl From<&str> for Identifier {
+    fn from(value: &str) -> Self {
+        let (namespace, path) = value.split_once(':').unwrap();
+        Self {
+            namespace: namespace.to_string(),
+            path: path.to_string(),
+        }
     }
 }
 
@@ -141,3 +155,22 @@ impl<T: BedrockSerializable> BedrockSerializeVec for Vec<T> {
         self.into_iter().map(|s| s.bedrock_serialize()).collect::<Vec<String>>()
     }
 }
+
+pub trait HoldBuilder<B : Default> {
+    fn builder() -> B {
+        B::default()
+    }
+}
+
+#[macro_export]
+macro_rules! hold_builders {
+    ($($id:ident),+) => {
+        use crate::core::utilities::HoldBuilder;
+        $(
+            paste::paste! {
+                impl HoldBuilder<[< $id Builder >]> for $id {}
+            }
+        )*
+    };
+}
+
