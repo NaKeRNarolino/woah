@@ -3,6 +3,7 @@ pub mod permutation;
 pub mod traits;
 pub mod registry;
 pub mod client;
+pub mod components;
 
 use std::collections::HashMap;
 use derive_builder::Builder;

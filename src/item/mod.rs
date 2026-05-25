@@ -1,13 +1,14 @@
 use crate::code_gen::TEMPLATES;
 use crate::core::utilities::{Identifier, SemVer};
 use crate::bedrock::BedrockSerializable;
-use eo::sjson::{SJsonElement, SJsonValue, TransformHashMap};
+use eo::sjson::{SJsonElement, SJsonMacro, SJsonValue, TransformHashMap};
 use std::collections::HashMap;
 use derive_builder::Builder;
 use crate::hold_builders;
 
 pub mod item_registry;
 pub mod client;
+pub mod components;
 
 hold_builders!(Item);
 
@@ -18,15 +19,16 @@ pub struct Item {
     pub id: Identifier,
     #[builder(default = "SemVer::latest()")]
     pub format_version: SemVer,
-    pub components: HashMap<String, SJsonValue>
+    pub components: SJsonMacro
 }
 
 
 
 impl BedrockSerializable for Item {
     fn bedrock_serialize(&self) -> String {
-        let components_serialized = serde_json::to_string(&self.components).unwrap();
-        
+        let components_serialized = self.components.serialize();
+
+        println!("{}", &components_serialized);
         let mut c = tera::Context::new();
         
         c.insert("format_version", &self.format_version.render_dotted());

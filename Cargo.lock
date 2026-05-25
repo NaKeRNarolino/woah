@@ -428,7 +428,7 @@ checksum = "48c757948c5ede0e46177b7add2e67155f70e33c07fea8284df6576da70b3719"
 [[package]]
 name = "eo"
 version = "0.1.0"
-source = "git+https://github.com/NaKeRNarolino/eo.git#7cc11db803dabef2fdbbc90e46215f10947e36e3"
+source = "git+https://github.com/NaKeRNarolino/eo.git#dbf0c17e5db3d8ddbea608f26bfcc8afbf1294f6"
 dependencies = [
  "colored",
  "log",
@@ -824,7 +824,7 @@ dependencies = [
 [[package]]
 name = "macros"
 version = "0.1.0"
-source = "git+https://github.com/NaKeRNarolino/eo.git#7cc11db803dabef2fdbbc90e46215f10947e36e3"
+source = "git+https://github.com/NaKeRNarolino/eo.git#dbf0c17e5db3d8ddbea608f26bfcc8afbf1294f6"
 dependencies = [
  "proc-macro2",
  "quote",

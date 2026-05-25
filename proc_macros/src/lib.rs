@@ -5,12 +5,13 @@ use std::collections::HashMap;
 use std::fs;
 use std::hash::Hash;
 use std::iter::Peekable;
-use proc_macro2::{TokenStream, TokenTree};
+use proc_macro2::{Group, TokenStream, TokenTree};
 use proc_macro2::token_stream::IntoIter;
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::__private::TokenStream2;
-use syn::parse::{Parse, ParseStream};
-use syn::parse_macro_input;
+use syn::parse::{Parse, ParseStream, Parser};
+use syn::{parse_macro_input, Expr};
+use syn::token::At;
 use crate::builder::Builder;
 
 #[proc_macro]
@@ -36,8 +37,78 @@ pub fn template_encoder(tokens: proc_macro::TokenStream) -> proc_macro::TokenStr
 /// }
 #[proc_macro]
 pub fn woah(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let decl = syn::parse_macro_input!(input as Builder);
-    decl.to_token_stream().into()
+    let mut input2 = TokenStream2::from(input);
+
+    let mut iter = input2.clone().into_iter();
+    if let Some(TokenTree::Punct(punct)) = iter.next() {
+        if punct.as_char() == '@' {
+            input2 = iter.collect();
+        }
+    }
+
+    fn rewrite_stream(input_stream: ParseStream) -> syn::Result<TokenStream2> {
+        let mut output = TokenStream2::new();
+
+        while !input_stream.is_empty() {
+            if input_stream.peek(syn::Token![@]) {
+                if input_stream.peek2(syn::Ident) {
+                    let _at_token: At = input_stream.parse()?;
+
+                    let content_to_wrap = if input_stream.peek(syn::Ident) && input_stream.peek2(syn::token::Brace) {
+                        let ident: syn::Ident = input_stream.parse()?;
+                        let group: Group = input_stream.parse()?;
+
+                        let rewritten_inner = rewrite_stream.parse2(group.stream())?;
+                        let mut rewritten_group = Group::new(group.delimiter(), rewritten_inner);
+                        rewritten_group.set_span(group.span());
+
+                        quote! { #ident #rewritten_group }
+                    } else {
+                        let expr: Expr = input_stream.parse()?;
+                        quote! { #expr }
+                    };
+
+                    let macro_call = quote! {
+                        woah! { #content_to_wrap }
+                    };
+
+                    output.extend(macro_call);
+                } else {
+                    let next_token: TokenTree = input_stream.parse()?;
+                    output.extend([next_token]);
+                }
+            } else if input_stream.peek(syn::token::Brace)
+                || input_stream.peek(syn::token::Paren)
+                || input_stream.peek(syn::token::Bracket) {
+
+                let group: Group = input_stream.parse()?;
+
+                let rewritten_inner = rewrite_stream.parse2(group.stream())?;
+
+                let mut rewritten_group = Group::new(group.delimiter(), rewritten_inner);
+                rewritten_group.set_span(group.span());
+
+                output.extend([TokenTree::Group(rewritten_group)]);
+            } else {
+                let next_token: TokenTree = input_stream.parse()?;
+                output.extend([next_token]);
+            }
+        }
+
+        Ok(output)
+    }
+
+    let rewritten_tokens = match rewrite_stream.parse2(input2) {
+        Ok(tokens) => tokens,
+        Err(err) => return err.to_compile_error().into(),
+    };
+
+    let final_input = match syn::parse2::<Builder>(rewritten_tokens) {
+        Ok(decl) => decl.to_token_stream().into(),
+        Err(err) => err.to_compile_error().into(),
+    };
+
+    final_input
 }
 
 struct TemplateEncoder {

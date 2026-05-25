@@ -6,6 +6,7 @@ pub mod molang;
 pub mod entity;
 mod bedrock;
 
+
 use std::collections::HashMap;
 pub use eo;
 use eo::sjson::{SJsonElement, SJsonValue, TransformHashMap};
@@ -13,6 +14,8 @@ pub use proc_macros::woah;
 
 #[cfg(test)]
 mod tests {
+    use crate::block::components::v1_19_10::DestroyTime;
+use eo::sjson::HasSJsonIdent;
     use super::*;
     use crate::core::metadata::{AdditionalMetadata, AdditionalMetadataBuilder, PackMetadata, PackMetadataBuilder};
     use crate::core::utilities::{HoldBuilder, Identifier, SemVer};
@@ -20,40 +23,41 @@ mod tests {
     use crate::item::{Item, ItemBuilder};
     use eo::sjson;
     use std::path::PathBuf;
-    use eo::sjson::ToSJson;
+    use eo::sjson::{ToSJson};
     use image::Rgba;
     use rand::random;
+    use serde_json::json;
     use crate::bedrock::metadata::{BedrockSpecificMetadata, BedrockSpecificMetadataBuilder, ScriptModule};
     use crate::block::Block;
     use crate::block::client::BlockTexture;
+    use crate::block::components::v1_26_20::MaterialInstances;
     use crate::block::permutation::BlockPermutation;
     use crate::block::state::{BlockState, BlockStateType};
     use crate::block::traits::{BlockTrait, PlacementDirectionState};
     use crate::core::sprite::Sprite;
     use crate::item::client::ItemTexture;
     use crate::molang::Molang;
+    use crate::item::components::v1_26_10::*;
 
     struct Addon;
 
     impl PackImplementation for Addon {
         fn initialize(&self, events: &core::PackRegistrationEvents) {
+
             events.item_registration.subscribe(|reg| {
                 for i in 1..=100 {
-                    let damage = i.sjson();
-                    let name = format!("Item No. {i}").sjson();
-                    let icon = format!("woah:item_icon_{i}").sjson();
+                    let name = format!("Item No. {i}");
+                    let icon = format!("woah:item_icon_{i}");
                     reg.register_item(
                         woah! {
                             @Item {
                                 id = ("woah", format!("item_{i}"));
                                 components = sjson! {
-                                    minecraft:damage {
-                                        value = $damage
+                                    :@DisplayName {
+                                        value = name
                                     },
-                                    minecraft:display_name {
-                                        value = $name
-                                    },
-                                    minecraft:icon = $icon
+                                    :@Icon::String(icon),
+                                    :@Damage::Integer(i)
                                 };
                             }
                         }
@@ -104,19 +108,17 @@ mod tests {
                             }
                         ];
                         components = sjson! {
-                            minecraft:display_name = "Hi"
+                            :@block::components::v1_26_10::DisplayName("Woah Test Block")
                         };
                         permutations = vec![
                             BlockPermutation::new(
                                 Molang::new("q.block_state('woah:val') > 2") & Molang::new("q.block_state('woah:toggle')"),
                                 sjson! {
-                                    minecraft:mining_speed {
-                                        speed = 10 // I don't remember the syntax let's assume this is the component
-                                    },
-                                    minecraft:material_instances {
-                                        * {
-                                            texture = "woah:block"
-                                        }
+                                    :@DestroyTime(10.0),
+                                    :@MaterialInstances {
+                                        all = json!({
+                                            "texture": "woah:block"
+                                        })
                                     }
                                 }
                             )
@@ -125,14 +127,14 @@ mod tests {
                 })
             });
 
-            events.client_block_registration.subscribe(|reg| {
-                reg.register_texture(
-                    BlockTexture::new(
-                        "woah:block".into(),
-                        Sprite::read("./textures/block.png")
-                    )
-                )
-            })
+            // events.client_block_registration.subscribe(|reg| {
+            //     reg.register_texture(
+            //         BlockTexture::new(
+            //             "woah:block".into(),
+            //             Sprite::read("./textures/block.png")
+            //         )
+            //     )
+            // })
         }
 
         fn metadata(&self) -> PackMetadata {
