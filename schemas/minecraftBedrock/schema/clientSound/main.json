@@ -1,0 +1,80 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"type": "object",
+	"properties": {
+		"block_sounds": {
+			"title": "Block Sounds",
+			"type": "object",
+			"patternProperties": {
+				".*": {
+					"$ref": "./general.json#/definitions/sound_event_definitions"
+				}
+			}
+		},
+		"entity_sounds": {
+			"title": "Entity Sounds",
+			"type": "object",
+			"properties": {
+				"defaults": {
+					"title": "Defaults",
+					"$ref": "./general.json#/definitions/sound_event_definitions"
+				},
+				"entities": {
+					"title": "Entities",
+					"type": "object",
+					"propertyNames": {
+						"$ref": "../general/reference/identifiers.json#/definitions/entity_identifiers"
+					},
+					"patternProperties": {
+						".*": {
+							"$ref": "./general.json#/definitions/entity_sound_event_definitions"
+						}
+					}
+				}
+			}
+		},
+		"individual_event_sounds": {
+			"title": "Individual Event Sounds",
+			"type": "object",
+			"properties": {
+				"events": {
+					"title": "Events",
+					"type": "object",
+					"patternProperties": {
+						".*": {
+							"$ref": "./general.json#/definitions/sound_event"
+						}
+					}
+				}
+			}
+		},
+		"individual_named_sounds": {
+			"title": "Individual Named Sounds",
+			"type": "object",
+			"properties": {
+				"sounds": {
+					"title": "Sounds",
+					"type": "object",
+					"patternProperties": {
+						".*": {
+							"$ref": "./general.json#/definitions/sound_event"
+						}
+					}
+				}
+			}
+		},
+		"interactive_sounds": {
+			"title": "Interactive Sounds",
+			"type": "object",
+			"properties": {
+				"block_sounds": {
+					"$ref": "#/properties/block_sounds"
+				},
+				"entity_sounds": {
+					"$ref": "#/properties/entity_sounds"
+				}
+			}
+		}
+	},
+	"additionalProperties": false
+}

@@ -1,0 +1,14 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "properties": {
+        "sequence": {
+            "title": "Sequence",
+            "description": "Executes multiple events in order.",
+            "type": "array",
+            "items": {
+                "$ref": "./_main.json"
+            }
+        }
+    }
+}

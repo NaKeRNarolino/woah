@@ -1,0 +1,14 @@
+{
+	"id": "clientLang",
+	"type": "text",
+	"icon": "mdi-web",
+	"detect": {
+		"packType": "resourcePack",
+		"scope": ["texts/"],
+		"matcher": "texts/**/*",
+		"fileExtensions": [".lang"]
+	},
+
+	"formatOnSaveCapable": false,
+	"lightningCache": "lang.js"
+}

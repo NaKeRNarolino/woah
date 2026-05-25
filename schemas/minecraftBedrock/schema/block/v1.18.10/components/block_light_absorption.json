@@ -1,0 +1,6 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"title": "Block Light Absorption",
+	"deprecationMessage": "Deprecated in favor of 'minecraft:block_light_filter' (format_version: 1.19.10).",
+	"doNotSuggest": true
+}

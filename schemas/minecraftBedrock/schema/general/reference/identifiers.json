@@ -1,0 +1,312 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"definitions": {
+		"aim_assist_categories_identifiers": {
+			"type": "string",
+			"anyOf": [
+				{
+					"$ref": "../../aimAssistCategories/dynamic/identifierEnum.json"
+				},
+				{
+					"$ref": "../../aimAssistPreset/dynamic/categoriesIdentifierEnum.json"
+				},
+				{
+					"$ref": "../vanilla/identifiers.json#/definitions/aim_assist_categories_identifiers"
+				}
+			]
+		},
+		"aim_assist_preset_identifiers": {
+			"type": "string",
+			"anyOf": [
+				{
+					"$ref": "../../aimAssistPreset/dynamic/identifierEnum.json"
+				},
+				{
+					"$ref": "../vanilla/identifiers.json#/definitions/aim_assist_preset_identifiers"
+				}
+			]
+		},
+		"entity_identifiers": {
+			"type": "string",
+			"anyOf": [
+				{
+					"$ref": "../vanilla/identifiers.json#/definitions/prefixed_entity_identifiers"
+				},
+				{
+					"$ref": "../vanilla/identifiers.json#/definitions/unprefixed_entity_identifiers"
+				},
+				{
+					"$ref": "../../entity/dynamic/identifierEnum.json"
+				},
+				{
+					"$ref": "../../clientEntity/dynamic/identifierEnum.json"
+				},
+				{
+					"$ref": "../../entity/dynamic/aliasEnum.json"
+				},
+				{
+					"type": "string",
+					"pattern": "^minecraft:[a-z_]*<[a-z_:]*>$"
+				},
+				{
+					"$ref": "../../entity/dynamic/aliasEnum.json"
+				}
+			]
+		},
+		"block_identifiers": {
+			"type": "string",
+			"anyOf": [
+				{
+					"$ref": "../vanilla/identifiers.json#/definitions/prefixed_block_identifiers"
+				},
+				{
+					"$ref": "../vanilla/identifiers.json#/definitions/unprefixed_block_identifiers"
+				},
+				{
+					"$ref": "../../block/dynamic/identifierEnum.json"
+				},
+				{
+					"type": "string",
+					"pattern": "^minecraft:[a-z_]*:[0-9]*$"
+				}
+			]
+		},
+		"camera_preset_identifiers": {
+			"type": "string",
+			"anyOf": [
+				{
+					"$ref": "../vanilla/identifiers.json#/definitions/camera_preset_identifiers"
+				},
+				{
+					"$ref": "../../cameraPreset/dynamic/identifierEnum.json"
+				}
+			]
+		},
+		"item_identifiers": {
+			"type": "string",
+			"anyOf": [
+				{
+					"$ref": "../vanilla/identifiers.json#/definitions/prefixed_item_identifiers"
+				},
+				{
+					"$ref": "../vanilla/identifiers.json#/definitions/unprefixed_item_identifiers"
+				},
+				{
+					"$ref": "../../item/dynamic/identifierEnum.json"
+				},
+				{
+					"$ref": "../../clientItem/dynamic/identifierEnum.json"
+				},
+				{
+					"$ref": "../../attachable/dynamic/itemIdentifierEnum.json"
+				},
+				{
+					"$ref": "../../recipe/dynamic/itemIdentifierEnum.json"
+				},
+				{
+					"type": "string",
+					"enum": [
+						"minecraft:trial_key",
+						"minecraft:ominous_trial_key",
+						"minecraft:wind_charge",
+						"trial_key",
+						"ominous_trial_key",
+						"wind_charge"
+					]
+				},
+				{
+					"type": "string",
+					"pattern": "^minecraft:[a-z_]*:[0-9]*$"
+				}
+			]
+		},
+		"particle_identifiers": {
+			"type": "string",
+			"anyOf": [
+				{
+					"$ref": "../vanilla/identifiers.json#/definitions/particle_identifiers"
+				},
+				{
+					"$ref": "../../particle/dynamic/identifierEnum.json"
+				},
+				{
+					"$ref": "../../attachable/dynamic/particleIdentifierEnum.json"
+				},
+				{
+					"$ref": "../../clientEntity/dynamic/particleIdentifierEnum.json"
+				}
+			]
+		},
+		"fog_identifiers": {
+			"type": "string",
+			"anyOf": [
+				{
+					"$ref": "../vanilla/identifiers.json#/definitions/fog_identifiers"
+				},
+				{
+					"$ref": "../../fog/dynamic/identifierEnum.json"
+				},
+				{
+					"$ref": "../../biomesClient/dynamic/fogIdentifierEnum.json"
+				},
+				{
+					"$ref": "../../clientBiome/dynamic/fogIdentifierEnum.json"
+				},
+				{
+					"$ref": "../../volume/dynamic/fogIdentifierEnum.json"
+				}
+			]
+		},
+		"feature_identifiers": {
+			"type": "string",
+			"anyOf": [
+				{
+					"$ref": "../../feature/dynamic/identifierEnum.json"
+				},
+				{
+					"$ref": "../vanilla/identifiers.json#/definitions/feature_identifiers"
+				}
+			]
+		},
+		"feature_rule_identifiers": {
+			"type": "string",
+			"anyOf": [
+				{
+					"$ref": "../vanilla/identifiers.json#/definitions/feature_rule_identifiers"
+				},
+				{
+					"$ref": "../../featureRule/dynamic/identifierEnum.json"
+				}
+			]
+		},
+		"biome_identifiers": {
+			"type": "string",
+			"anyOf": [
+				{
+					"$ref": "../vanilla/identifiers.json#/definitions/biome_identifiers"
+				},
+				{
+					"$ref": "../../biome/dynamic/identifierEnum.json"
+				}
+			]
+		},
+		"prefixed_biome_identifiers": {
+			"type": "string",
+			"anyOf": [
+				{
+					"$ref": "../vanilla/identifiers.json#/definitions/prefixed_biome_identifiers"
+				},
+				{
+					"$ref": "../../biome/dynamic/prefixedIdentifierEnum.json"
+				}
+			]
+		},
+		"jigsaw_structure_identifiers": {
+			"type": "string",
+			"anyOf": [
+				{
+					"$ref": "../../jigsawStructure/dynamic/identifierEnum.json"
+				},
+				{
+					"$ref": "../vanilla/identifiers.json#/definitions/jigsaw_structure_identifiers"
+				}
+			]
+		},
+		"template_pool_identifiers": {
+			"type": "string",
+			"anyOf": [
+				{
+					"$ref": "../../templatePool/dynamic/identifierEnum.json"
+				},
+				{
+					"$ref": "../vanilla/identifiers.json#/definitions/template_pool_identifiers"
+				}
+			]
+		},
+		"processor_list_identifiers": {
+			"type": "string",
+			"anyOf": [
+				{
+					"$ref": "../../processorList/dynamic/identifierEnum.json"
+				},
+				{
+					"$ref": "../vanilla/identifiers.json#/definitions/processor_list_identifiers"
+				}
+			]
+		},
+		"structure_set_identifiers": {
+			"type": "string",
+			"anyOf": [
+				{
+					"$ref": "../../structureSet/dynamic/identifierEnum.json"
+				},
+				{
+					"$ref": "../vanilla/identifiers.json#/definitions/structure_set_identifiers"
+				}
+			]
+		},
+		"atmosphere_settings_identifiers": {
+			"type": "string",
+			"anyOf": [
+				{
+					"$ref": "../../atmosphereSettings/dynamic/identifierEnum.json"
+				},
+				{
+					"$ref": "../vanilla/identifiers.json#/definitions/atmosphere_settings_identifiers"
+				}
+			]
+		},
+		"color_grading_settings_identifiers": {
+			"type": "string",
+			"anyOf": [
+				{
+					"$ref": "../../colorGradingSettings/dynamic/identifierEnum.json"
+				},
+				{
+					"$ref": "../vanilla/identifiers.json#/definitions/color_grading_settings_identifiers"
+				}
+			]
+		},
+		"lighting_settings_identifiers": {
+			"type": "string",
+			"anyOf": [
+				{
+					"$ref": "../../lightingSettings/dynamic/identifierEnum.json"
+				},
+				{
+					"$ref": "../vanilla/identifiers.json#/definitions/lighting_settings_identifiers"
+				}
+			]
+		},
+		"water_settings_identifiers": {
+			"type": "string",
+			"anyOf": [
+				{
+					"$ref": "../../waterSettings/dynamic/identifierEnum.json"
+				},
+				{
+					"$ref": "../vanilla/identifiers.json#/definitions/water_settings_identifiers"
+				}
+			]
+		},
+		"cubemap_settings_identifiers": {
+			"type": "string",
+			"anyOf": [
+				{
+					"$ref": "../../cubemapSettings/dynamic/identifierEnum.json"
+				},
+				{
+					"$ref": "../vanilla/identifiers.json#/definitions/cubemap_settings_identifiers"
+				}
+			]
+		},
+		"voxel_shape_identifiers": {
+			"type": "string",
+			"anyOf": [
+				{
+					"$ref": "../../voxelShape/dynamic/identiferEnum.json"
+				}
+			]
+		}
+	}
+}

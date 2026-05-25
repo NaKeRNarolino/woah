@@ -1,0 +1,14 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "properties": {
+        "first_valid": {
+            "title": "First Valid",
+            "description": "Evaluates every filter in order and executes the first valid one.",
+            "type": "array",
+            "items": {
+                "$ref": "./_main.json"
+            }
+        }
+    }
+}
