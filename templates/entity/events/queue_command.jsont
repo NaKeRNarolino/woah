@@ -1,0 +1,4 @@
+"queue_command": {
+  "target": "{{target}}",
+  "command": {{commands}}
+}

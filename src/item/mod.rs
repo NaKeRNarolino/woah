@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use derive_builder::Builder;
 use crate::hold_builders;
 
-pub mod item_registry;
+pub mod registry;
 pub mod client;
 pub mod components;
 

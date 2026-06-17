@@ -64,6 +64,47 @@ impl Display for Identifier {
     }
 }
 
+#[derive(Clone)]
+pub enum ScriptModuleVer {
+    SemVer(SemVer),
+    String(String)
+}
+
+impl ScriptModuleVer {
+    pub fn render(&self) -> String {
+        match self {
+            ScriptModuleVer::SemVer(v) => v.render_dotted(),
+            ScriptModuleVer::String(s) => s.clone()
+        }
+    }
+}
+
+impl Default for ScriptModuleVer {
+    fn default() -> Self {
+        ScriptModuleVer::SemVer(SemVer::default())
+    }
+}
+
+impl<T> From<T> for ScriptModuleVer
+where T:
+    Into<SemVer> {
+    fn from(value: T) -> Self {
+        ScriptModuleVer::SemVer(value.into())
+    }
+}
+
+impl From<String> for ScriptModuleVer {
+    fn from(value: String) -> Self {
+        ScriptModuleVer::String(value)
+    }
+}
+
+impl From<&str> for ScriptModuleVer {
+    fn from(value: &str) -> Self {
+        ScriptModuleVer::String(value.to_string())
+    }
+}
+
 /// A struct for describing `major.minor.hotfix` & `major.minor.hotfix-beta` style versions.
 #[derive(Default, Clone, Debug)]
 pub struct SemVer {

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use derive_builder::Builder;
-use eo::sjson::SJsonElement;
+use eo::sjson::{SJsonElement, SJsonMacro};
 use crate::core::utilities::SemVer;
 use crate::bedrock::metadata::BedrockSpecificMetadata;
 use crate::hold_builders;
@@ -25,7 +25,7 @@ pub struct AdditionalMetadata {
     #[builder(default = "None")]
     pub(crate) bedrock_specific: Option<BedrockSpecificMetadata>,
     #[builder(default = "None")]
-    pub(crate) additional: Option<HashMap<String, SJsonElement>>
+    pub(crate) additional: Option<SJsonMacro>
 }
 
 impl PackMetadata {

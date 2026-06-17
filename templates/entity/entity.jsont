@@ -1,0 +1,15 @@
+{
+  "format_version": "{{format_version}}",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "{{id}}",
+      "spawn_category": "{{spawn_category}}",
+      "is_summonable": {{is_summonable}},
+      "is_spawnable": {{is_spawnable}},
+      "properties": {{properties}}
+    },
+    "component_groups": {{component_groups}},
+    "components": {{components}},
+    "events": {{events}}
+  }
+}

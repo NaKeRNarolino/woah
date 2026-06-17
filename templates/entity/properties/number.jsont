@@ -1,0 +1,6 @@
+"{{id}}": {
+    "type": "float",
+    "range": {{range}},
+    "default": {{default}},
+    "client_sync": {{client_sync}}
+}

@@ -1,5 +1,6 @@
-mod event;
-mod component_group;
+pub mod event;
+pub mod component_group;
+pub mod registry;
 
 use std::collections::HashMap;
 use eo::sjson::SJsonValue;

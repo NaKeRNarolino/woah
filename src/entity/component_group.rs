@@ -1,17 +1,18 @@
 use std::collections::HashMap;
 use eo::sjson::SJsonValue;
+use crate::bedrock::BedrockSerializable;
 
 #[derive(Clone)]
 pub struct EntityComponentGroup {
-    name: String,
+    id: String,
     components: HashMap<String, SJsonValue>
 }
 
 impl EntityComponentGroup {
     pub fn new(
-        name: impl Into<String>,
+        id: impl Into<String>,
         components: HashMap<String, SJsonValue>
     ) -> Self {
-        Self { name: name.into(), components }
+        Self { id: id.into(), components }
     }
 }

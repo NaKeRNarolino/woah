@@ -2,10 +2,10 @@ use derive_builder::Builder;
 use crate::bedrock::BedrockSerializable;
 use crate::code_gen::{WoahConfig, TEMPLATES};
 use crate::core::core_registry::REGISTRY;
-use crate::core::utilities::SemVer;
+use crate::core::utilities::{ScriptModuleVer, SemVer};
 use crate::hold_builders;
 
-hold_builders!(BedrockSpecificMetadata);
+hold_builders!(BedrockSpecificMetadata, ScriptModule);
 
 #[derive(Clone, Default, Builder)]
 #[builder(setter(into))]
@@ -15,14 +15,52 @@ pub struct BedrockSpecificMetadata {
 }
 
 /// A struct for describing Script modules.
-#[derive(Clone)]
+#[derive(Clone, Default, Builder)]
+#[builder(setter(into))]
 pub struct ScriptModule {
-    name: String,
-    version: SemVer,
+    name: ScriptModuleName,
+    version: ScriptModuleVer,
+}
+
+#[derive(Clone)]
+#[derive(Default)]
+pub enum ScriptModuleName {
+    #[default]
+    Server,
+    Ui,
+    Graphics,
+    DebugUtilities,
+    GameTest,
+    Net,
+    Admin,
+    String(String)
+}
+
+impl ScriptModuleName {
+    pub fn render(&self) -> String {
+        match self {
+            ScriptModuleName::Server => "@minecraft/server",
+            ScriptModuleName::Ui => "@minecraft/server-ui",
+            ScriptModuleName::Graphics => "@minecraft/server-graphics",
+            ScriptModuleName::DebugUtilities => "@minecraft/debug-utilities",
+            ScriptModuleName::GameTest => "@minecraft/server-gametest",
+            ScriptModuleName::Net => "@minecraft/server-net",
+            ScriptModuleName::Admin => "@minecraft/server-admin",
+            ScriptModuleName::String(v) => v
+        }.to_string()
+    }
+}
+
+impl<T> From<T> for ScriptModuleName
+where T:
+    ToString {
+    fn from(value: T) -> Self {
+        ScriptModuleName::String(value.to_string())
+    }
 }
 
 impl ScriptModule {
-    pub fn new(name: impl Into<String>, version: SemVer) -> Self {
+    pub fn new(name: impl Into<ScriptModuleName>, version: ScriptModuleVer) -> Self {
         Self {
             name: name.into(), version
         }
@@ -31,8 +69,8 @@ impl ScriptModule {
     pub fn render(&self) -> String {
         let mut context = tera::Context::new();
 
-        context.insert("name", &self.name);
-        context.insert("version", &self.version.render_dotted());
+        context.insert("name", &self.name.render());
+        context.insert("version", &self.version.render());
 
         TEMPLATES.render("manifest/script_module.json", &context).unwrap()
     }

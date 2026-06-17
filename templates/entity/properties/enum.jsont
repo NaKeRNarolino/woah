@@ -1,0 +1,6 @@
+"{{id}}": {
+    "type": "enum",
+    "values": {{values}},
+    "default": "{{default}}",
+    "client_sync": {{client_sync}}
+}

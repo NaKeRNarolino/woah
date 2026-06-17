@@ -4,7 +4,7 @@ mod code_gen;
 pub mod block;
 pub mod molang;
 pub mod entity;
-mod bedrock;
+pub mod bedrock;
 
 
 use std::collections::HashMap;
@@ -27,7 +27,7 @@ use eo::sjson::HasSJsonIdent;
     use image::Rgba;
     use rand::random;
     use serde_json::json;
-    use crate::bedrock::metadata::{BedrockSpecificMetadata, BedrockSpecificMetadataBuilder, ScriptModule};
+    use crate::bedrock::metadata::{BedrockSpecificMetadata, BedrockSpecificMetadataBuilder, ScriptModule, ScriptModuleName};
     use crate::block::Block;
     use crate::block::client::BlockTexture;
     use crate::block::components::v1_26_20::MaterialInstances;
@@ -42,7 +42,10 @@ use eo::sjson::HasSJsonIdent;
     struct Addon;
 
     impl PackImplementation for Addon {
-        fn initialize(&self, events: &core::PackRegistrationEvents) {
+        fn initialize(&self, events: &core::PackProcessingEvents) {
+            events.entity_registration.subscribe(|reg| {
+
+            });
 
             events.item_registration.subscribe(|reg| {
                 for i in 1..=100 {
@@ -53,11 +56,7 @@ use eo::sjson::HasSJsonIdent;
                             @Item {
                                 id = ("woah", format!("item_{i}"));
                                 components = sjson! {
-                                    :@DisplayName {
-                                        value = name
-                                    },
-                                    :@Icon::String(icon),
-                                    :@Damage::Integer(i)
+                                    minecraft:display_name = $name
                                 };
                             }
                         }
@@ -108,17 +107,16 @@ use eo::sjson::HasSJsonIdent;
                             }
                         ];
                         components = sjson! {
-                            :@block::components::v1_26_10::DisplayName("Woah Test Block")
+                            minecraft:display_name = "Cool Woah Block"
                         };
                         permutations = vec![
                             BlockPermutation::new(
-                                Molang::new("q.block_state('woah:val') > 2") & Molang::new("q.block_state('woah:toggle')"),
+                                Molang::new("q.block_state('woah:val') > 2"),
                                 sjson! {
-                                    :@DestroyTime(10.0),
-                                    :@MaterialInstances {
-                                        all = json!({
-                                            "texture": "woah:block"
-                                        })
+                                    minecraft:material_instances {
+                                        * {
+                                            texture = "texture_2"
+                                        }
                                     }
                                 }
                             )
@@ -126,15 +124,6 @@ use eo::sjson::HasSJsonIdent;
                     }
                 })
             });
-
-            // events.client_block_registration.subscribe(|reg| {
-            //     reg.register_texture(
-            //         BlockTexture::new(
-            //             "woah:block".into(),
-            //             Sprite::read("./textures/block.png")
-            //         )
-            //     )
-            // })
         }
 
         fn metadata(&self) -> PackMetadata {
@@ -148,16 +137,16 @@ use eo::sjson::HasSJsonIdent;
                         bedrock_specific = @BedrockSpecificMetadata {
                             min_engine_version = (1, 26, 20);
                             script_modules = vec![
-                                ScriptModule::new(
-                                    "@minecraft/server",
-                                    SemVer::new_beta(2, 0, 0)
-                                ),
-                                ScriptModule::new(
-                                    "@minecraft/server-ui",
-                                    SemVer::new_beta(2, 0, 0)
-                                )
+                                @ScriptModule {
+                                    name = ScriptModuleName::Server;
+                                    version = (2, 8, 0);
+                                },
+                                @ScriptModule {
+                                    name = ScriptModuleName::Ui;
+                                    version = (2, 1, 0);
+                                }
                             ];
-                        }
+                        };
                     };
                 }
             }
