@@ -1,13 +1,16 @@
 use std::fs;
 use std::path::PathBuf;
+use std::sync::Arc;
 use crate::block::Block;
 use crate::block::client::BlockTexture;
 use crate::code_gen::generator::PackGenerator;
 use crate::code_gen::TEMPLATES;
 use crate::core::metadata::PackMetadata;
 use crate::bedrock::BedrockSerializable;
-use crate::bedrock::metadata::{AddonBp, AddonRp};
+use crate::bedrock::metadata::{AddonBp, AddonRp, BedrockPath, BedrockPathResolver};
+use crate::core::build_target::BuildTarget;
 use crate::core::utilities::{BedrockSerializeVec, JsonFormat};
+use crate::entity::Entity;
 use crate::item::client::ItemTexture;
 use crate::item::Item;
 
@@ -16,28 +19,33 @@ use crate::item::Item;
 pub struct WoahBedrockGenerator;
 
 impl PackGenerator for WoahBedrockGenerator {
-    fn build(&self, output_path: PathBuf) {
-        fs::create_dir_all(&output_path.join("BP")).unwrap();
-        fs::create_dir_all(&output_path.join("RP")).unwrap();
+    fn build_prepare(&self, target: Arc<dyn BuildTarget>, metadata: &PackMetadata) {
+        fs::create_dir_all(&metadata.bedrock_path(BedrockPath::bp(""), &target)).unwrap();
+        fs::create_dir_all(&metadata.bedrock_path(BedrockPath::rp(""), &target)).unwrap();
     }
 
-    fn build_manifest(&self, output_path: PathBuf, metadata: &PackMetadata) {
-        fs::write(output_path.join("BP/manifest.json"), &AddonBp.bedrock_serialize().json_format()).unwrap();
-        fs::write(output_path.join("RP/manifest.json"), &AddonRp.bedrock_serialize().json_format()).unwrap();
+    fn build_manifest(&self, target: Arc<dyn BuildTarget>, metadata: &PackMetadata) {
+        fs::write(metadata.bedrock_path(
+            BedrockPath::bp("manifest.json"), &target
+        ), &AddonBp.bedrock_serialize().json_format()).unwrap();
+        fs::write(metadata.bedrock_path(
+            BedrockPath::rp("manifest.json"), 
+            &target
+        ), &AddonRp.bedrock_serialize().json_format()).unwrap();
     }
 
-    fn build_items(&self, output_path: PathBuf, items: Vec<Item>, metadata: &PackMetadata) {
-        fs::create_dir_all(&output_path.join("BP/items")).unwrap();
+    fn build_items(&self, target: Arc<dyn BuildTarget>, items: Vec<Item>, metadata: &PackMetadata) {
+        fs::create_dir_all(&metadata.bedrock_path(BedrockPath::bp("/items"), &target)).unwrap();
 
         for item in items {
-            let path = output_path.join(format!("BP/items/{}.json", &item.id.render_underscore()));
+            let path = metadata.bedrock_path(BedrockPath::bp(format!("items/{}.json", &item.id.render_underscore())), &target);
 
             fs::write(path, item.bedrock_serialize().json_format()).unwrap()
         }
     }
 
-    fn build_client_items(&self, output_path: PathBuf, items: Vec<ItemTexture>, metadata: &PackMetadata) {
-        let item_textures_path = output_path.join(format!("RP/textures/items/{}", metadata.name));
+    fn build_client_items(&self, target: Arc<dyn BuildTarget>, items: Vec<ItemTexture>, metadata: &PackMetadata) {
+        let item_textures_path = metadata.bedrock_path(BedrockPath::rp(format!("textures/items/{}", metadata.name)), &target);
 
         fs::create_dir_all(&item_textures_path).unwrap();
 
@@ -49,7 +57,7 @@ impl PackGenerator for WoahBedrockGenerator {
             item.sprite.build(file_path)
         }
 
-        let item_texture_json_path = output_path.join("RP/textures/item_texture.json");
+        let item_texture_json_path = metadata.bedrock_path(BedrockPath::rp("textures/item_texture.json"), &target);
 
         let mut c = tera::Context::new();
 
@@ -61,26 +69,26 @@ impl PackGenerator for WoahBedrockGenerator {
         fs::write(item_texture_json_path, temp.json_format()).unwrap();
     }
 
-    fn build_blocks(&self, output_path: PathBuf, blocks: Vec<Block>, metadata: &PackMetadata) {
-        fs::create_dir_all(output_path.join("BP/blocks")).unwrap();
+    fn build_blocks(&self, target: Arc<dyn BuildTarget>, blocks: Vec<Block>, metadata: &PackMetadata) {
+        fs::create_dir_all(metadata.bedrock_path(BedrockPath::bp("blocks"), &target)).unwrap();
 
         for block in blocks {
-            fs::write(output_path.join(
-                format!("BP/blocks/{}.json", &block.id.render_underscore())
+            fs::write(metadata.bedrock_path(
+                BedrockPath::bp(format!("blocks/{}.json", &block.id.render_underscore())), &target
             ), block.bedrock_serialize().json_format()).unwrap()
         }
     }
 
-    fn build_client_blocks(&self, output_path: PathBuf, blocks: Vec<BlockTexture>, metadata: &PackMetadata) {
-        fs::create_dir_all(&output_path.join(format!("RP/textures/block/{}", metadata.name))).unwrap();
+    fn build_client_blocks(&self, target: Arc<dyn BuildTarget>, blocks: Vec<BlockTexture>, metadata: &PackMetadata) {
+        fs::create_dir_all(metadata.bedrock_path(BedrockPath::rp(format!("textures/block/{}", metadata.name)), &target)).unwrap();
 
         for texture in &blocks {
-            let path = &output_path.join(format!("RP/textures/block/{}/{}.png", metadata.name, &texture.id.render_underscore()));
+            let path = &metadata.bedrock_path(BedrockPath::rp(format!("textures/block/{}/{}.png", metadata.name, &texture.id.render_underscore())), &target);
 
             texture.sprite.build(path);
         }
 
-        let block_texture_json_path = output_path.join("RP/textures/terrain_texture.json");
+        let block_texture_json_path = metadata.bedrock_path(BedrockPath::rp("textures/terrain_texture.json"), &target);
 
         let mut c = tera::Context::new();
 
@@ -90,5 +98,20 @@ impl PackGenerator for WoahBedrockGenerator {
         let contents = TEMPLATES.render("block/terrain_texture.json", &c).unwrap();
 
         fs::write(block_texture_json_path, contents.json_format()).unwrap()
+    }
+
+    fn build_entities(&self, target: Arc<dyn BuildTarget>, entities: Vec<Entity>, metadata: &PackMetadata) {
+        fs::create_dir_all(metadata.bedrock_path(BedrockPath::bp(format!("entities/{}", metadata.name)), &target)).unwrap();
+
+        dbg!(&entities);
+        for entity in entities {
+            let path = metadata.bedrock_path(
+                BedrockPath::bp(format!("entities/{}/{}.json", metadata.name, entity.id.render_underscore())), &target
+            );
+
+            let ser = entity.bedrock_serialize();
+
+            fs::write(path, ser.json_format()).unwrap()
+        }
     }
 }

@@ -23,7 +23,7 @@ pub fn template_encoder(tokens: proc_macro::TokenStream) -> proc_macro::TokenStr
     }.into()
 }
 
-/// The Woah macro is used for a more nicer syntax when building stuff.
+/// The Woah macro is used for a nicer syntax when building stuff.
 /// ```rust
 /// use woah::woah;
 ///

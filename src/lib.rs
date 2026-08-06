@@ -23,10 +23,12 @@ use eo::sjson::HasSJsonIdent;
     use crate::item::{Item, ItemBuilder};
     use eo::sjson;
     use std::path::PathBuf;
+    use std::sync::Arc;
     use eo::sjson::{ToSJson};
     use image::Rgba;
     use rand::random;
     use serde_json::json;
+    use crate::bedrock::{BedrockTarget, TargetInstance};
     use crate::bedrock::metadata::{BedrockSpecificMetadata, BedrockSpecificMetadataBuilder, ScriptModule, ScriptModuleName};
     use crate::block::Block;
     use crate::block::client::BlockTexture;
@@ -34,7 +36,11 @@ use eo::sjson::HasSJsonIdent;
     use crate::block::permutation::BlockPermutation;
     use crate::block::state::{BlockState, BlockStateType};
     use crate::block::traits::{BlockTrait, PlacementDirectionState};
+    use crate::core::build_target::BuildTarget;
     use crate::core::sprite::Sprite;
+    use crate::entity::component_group::EntityComponentGroup;
+    use crate::entity::Entity;
+    use crate::entity::event::{EntityEvent, EntityFilter, EntityEventQueueCommand};
     use crate::item::client::ItemTexture;
     use crate::molang::Molang;
     use crate::item::components::v1_26_10::*;
@@ -44,7 +50,53 @@ use eo::sjson::HasSJsonIdent;
     impl PackImplementation for Addon {
         fn initialize(&self, events: &core::PackProcessingEvents) {
             events.entity_registration.subscribe(|reg| {
+                reg.register_entity(woah! {
+                    @Entity {
+                        id = "cool:entity";
+                        components = sjson! {};
+                        component_groups = vec![
+                            @EntityComponentGroup {
+                                id = "cool_component_group";
+                                components = sjson! {};
+                            }
+                        ];
+                        events = vec![
+                            @EntityEvent {
+                                filters = vec![
+                                    @EntityFilter {
+                                        operator = "==";
+                                        test = "has_biome_tag";
+                                        value = "plains";
+                                    }
+                                ];
+                                randomize = vec![
+                                    @EntityEvent {
+                                        weight = 90.0;
+                                    },
+                                    @EntityEvent {
+                                        weight = 10.0;
+                                        sequence = vec![
+                                            @EntityEvent {
+                                                filters = vec![
 
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ];
+                                queue_command = @EntityEventQueueCommand {
+                                    target = "self";
+                                    command("/particle minecraft:villager_happy ~ ~ ~");
+                                    command("/scriptevent script:event");
+                                };
+                                set_property = sjson! {
+                                    hi = 2
+                                };
+
+                            }
+                        ]
+                    }
+                })
             });
 
             events.item_registration.subscribe(|reg| {
@@ -152,8 +204,10 @@ use eo::sjson::HasSJsonIdent;
             }
         }
 
-        fn build_path(&self) -> PathBuf {
-            PathBuf::from("./woah/test/")
+        fn targets(&self) -> Vec<Arc<dyn BuildTarget>> {
+            vec![
+                BedrockTarget::local("./woah/test").target()
+            ]
         }
     }
 

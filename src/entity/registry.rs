@@ -7,8 +7,8 @@ pub struct EntityRegistry {}
 
 impl EntityRegistry {
     pub fn register_entity(&self, entity: Entity) {
-        info!("@client:item Registering entity {}", &entity.id);
+        info!("@entity Registering entity {}", &entity.id);
 
-        // REGISTRY.register_entity(entity);
+        REGISTRY.register_entity(entity);
     }
 }

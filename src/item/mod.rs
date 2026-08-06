@@ -28,7 +28,6 @@ impl BedrockSerializable for Item {
     fn bedrock_serialize(&self) -> String {
         let components_serialized = self.components.serialize();
 
-        println!("{}", &components_serialized);
         let mut c = tera::Context::new();
         
         c.insert("format_version", &self.format_version.render_dotted());

@@ -1,7 +1,12 @@
+use std::fmt::format;
+use std::path::PathBuf;
+use std::sync::Arc;
 use derive_builder::Builder;
 use crate::bedrock::BedrockSerializable;
 use crate::code_gen::{WoahConfig, TEMPLATES};
+use crate::core::build_target::BuildTarget;
 use crate::core::core_registry::REGISTRY;
+use crate::core::metadata::PackMetadata;
 use crate::core::utilities::{ScriptModuleVer, SemVer};
 use crate::hold_builders;
 
@@ -140,5 +145,45 @@ impl BedrockSerializable for AddonRp {
         c.insert("uuid_2", &conf.uuid2r);
 
         TEMPLATES.render("manifest/resource_pack.json", &c).unwrap()
+    }
+}
+
+pub enum BedrockPath {
+    BP(String),
+    RP(String)
+}
+
+impl BedrockPathResolver for PackMetadata {
+    fn pack_name(&self) -> &String {
+        &self.name
+    }
+}
+
+impl BedrockPath {
+    pub fn bp(s: impl Into<String>) -> Self {
+        BedrockPath::BP(s.into())
+    }
+
+    pub fn rp(s: impl Into<String>) -> Self {
+        BedrockPath::RP(s.into())
+    }
+}
+
+pub trait BedrockPathResolver {
+    fn pack_name(&self) -> &String;
+
+    fn bedrock_path(&self, path: BedrockPath, target: &Arc<dyn BuildTarget>) -> PathBuf {
+        match path {
+            BedrockPath::BP(v) => target.path().join(
+                format!("/{}_BP", self.pack_name())
+            ).join(
+                format!("/{}", v)
+            ),
+            BedrockPath::RP(v) => target.path().join(
+                format!("/{}_RP", self.pack_name())
+            ).join(
+                format!("/{}", v)
+            )
+        }
     }
 }

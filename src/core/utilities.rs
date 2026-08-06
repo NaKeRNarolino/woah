@@ -136,7 +136,7 @@ impl SemVer {
     }
     
     pub fn latest() -> Self {
-        Self::new(1, 26, 20)
+        Self::new(1, 26, 30)
     }
 }
 

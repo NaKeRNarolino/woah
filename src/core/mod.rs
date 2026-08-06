@@ -2,6 +2,7 @@ pub mod utilities;
 pub mod metadata;
 pub(crate) mod core_registry;
 pub mod sprite;
+pub mod build_target;
 
 use crate::code_gen::CODE_GEN;
 use crate::core::core_registry::REGISTRY;
@@ -15,6 +16,7 @@ use std::sync::{Arc, RwLock};
 use crate::block::registry::{BlockRegistry, ClientBlockRegistry};
 use crate::code_gen::generator::{GeneratorInstance, PackGenerator};
 use crate::bedrock::bedrock_generator::WoahBedrockGenerator;
+use crate::core::build_target::BuildTarget;
 use crate::entity::registry::EntityRegistry;
 
 /// The core trait for creating a pack. Implement this for your pack struct.
@@ -26,7 +28,7 @@ pub trait PackImplementation {
     fn metadata(&self) -> PackMetadata;
 
     /// A function returning a [PathBuf] to a path where the pack folders will be generated.
-    fn build_path(&self) -> PathBuf;
+    fn targets(&self) -> Vec<Arc<dyn BuildTarget>>;
 
     /// A function returning the [PackGenerator](crate::code_gen::generator::PackGenerator)s for the pack. Defaults to the default Minecraft Bedrock generator.
     /// When passing a generator, call [.generator](crate::code_gen::generator::GeneratorInstance::generator) on it.
@@ -136,7 +138,7 @@ impl Woah {
 
         REGISTRY.set_pack_metadata(pack.metadata());
 
-        CODE_GEN.set_output_path(pack.build_path());
+        // CODE_GEN.set_output_path(pack.build_path());
 
         CODE_GEN.set_generators(
             pack.generators()

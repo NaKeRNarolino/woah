@@ -14,10 +14,13 @@ use uuid::Uuid;
 use proc_macros::template_encoder;
 use crate::code_gen::generator::{GeneratorInstance, PackGenerator};
 use crate::bedrock::bedrock_generator::WoahBedrockGenerator;
+use crate::core::build_target::BuildTarget;
+
 type Generators = Vec<Arc<dyn PackGenerator>>;
+type Targets = Vec<Arc<dyn BuildTarget>>;
 
 pub struct CodeGen {
-    output_path: RwLock<PathBuf>,
+    targets: RwLock<Targets>,
     generators: RwLock<Generators>
 }
 
@@ -33,7 +36,7 @@ pub struct WoahConfig {
 impl WoahConfig {
     pub fn read() -> WoahConfig {
         serde_json::from_str(
-            &fs::read_to_string(CODE_GEN.output_path().join("_woah.json")).unwrap()
+            &fs::read_to_string("./cache.woah").unwrap()
         ).unwrap()
     }
 }
@@ -48,7 +51,7 @@ lazy_static! {
     };
 
     pub static ref CODE_GEN: CodeGen = CodeGen {
-        output_path: RwLock::new(PathBuf::new()),
+        targets: RwLock::new(vec![]),
         generators: RwLock::new(
             vec![
                 WoahBedrockGenerator.generator()
@@ -58,14 +61,18 @@ lazy_static! {
 }
 
 impl CodeGen {
-    pub fn set_output_path(&self, path: PathBuf) {
-        *self.output_path.write().unwrap() = path;
+    pub fn set_targets(&self, targets: Targets) {
+        *self.targets.write().unwrap() = targets;
     }
 
-    pub fn output_path(&self) -> PathBuf {
-        (&*self.output_path.read().unwrap()).clone()
-    }
+    // pub fn output_path(&self) -> PathBuf {
+    //     (&*self.output_path.read().unwrap()).clone()
+    // }
 
+
+    pub fn cwd(&self) -> PathBuf {
+        PathBuf::from("./")
+    }
 
     pub fn set_generators(&self, generators: Generators) {
         *self.generators.write().unwrap() = generators;
@@ -75,6 +82,10 @@ impl CodeGen {
         (&*self.generators.read().unwrap()).clone()
     }
 
+    pub fn targets(&self) -> Targets {
+        (&*self.targets.read().unwrap()).clone()
+    }
+
     pub fn metadata(&self) -> PackMetadata {
         (&*REGISTRY.pack_metadata.read().unwrap()).clone()
     }
@@ -82,36 +93,43 @@ impl CodeGen {
     pub fn build(&self) -> anyhow::Result<()> {
         let generators = self.generators();
 
-        fs::create_dir_all(self.output_path())?;
+        for target in self.targets() {
+            fs::create_dir_all(target.path())?;
 
-        generators.iter().for_each(|generator| {
-            generator.build(self.output_path())
-        });
+            let metadata = self.metadata();
 
-        self.try_generate_uuid();
+            generators.iter().for_each(|generator| {
+                generator.build_prepare(
+                    target.clone(),
+                    &metadata
+                )
+            });
 
-        let metadata = self.metadata();
+            self.try_generate_uuid();
 
-        self.build_manifest(&generators, &metadata);
+            self.build_manifest(&generators, &metadata, target.clone());
 
-        self.build_items(&generators, &metadata);
-        
-        self.build_blocks(&generators, &metadata);
+            self.build_items(&generators, &metadata, target.clone());
+
+            self.build_blocks(&generators, &metadata, target.clone());
+
+            self.build_entities(&generators, &metadata, target.clone());
+        }
 
         Ok(())
     }
 
-    pub fn build_manifest(&self, generators: &Generators, metadata: &PackMetadata) {
+    pub fn build_manifest(&self, generators: &Generators, metadata: &PackMetadata, target: Arc<dyn BuildTarget>) {
         for generator in generators {
             generator.build_manifest(
-                self.output_path(),
+                target.clone(),
                 metadata,
             )
         }
     }
 
     pub fn try_generate_uuid(&self) {
-        let config_path = self.output_path().join("_woah.json");
+        let config_path = self.cwd().join("_woah.json");
         if let Err(_) = fs::read_to_string(&config_path) {
             fs::write(&config_path, serde_json::to_string_pretty(&WoahConfig {
                 uuid1b: Uuid::new_v4().to_string(),
@@ -123,44 +141,47 @@ impl CodeGen {
         }
     }
 
-    pub fn build_items(&self, generators: &Generators, metadata: &PackMetadata) {
+    pub fn build_items(&self, generators: &Generators, metadata: &PackMetadata, target: Arc<dyn BuildTarget>) {
         let items = REGISTRY.items.read().unwrap().clone();
 
-        let output = self.output_path();
-
         for generator in generators {
-            generator.build_items(output.clone(), items.clone(), metadata)
+            generator.build_items(target.clone(), items.clone(), metadata)
         }
 
-        self.build_client_items(generators, metadata);
+        self.build_client_items(generators, metadata, target);
     }
     
-    pub fn build_client_items(&self, generators: &Generators, metadata: &PackMetadata) {
+    pub fn build_client_items(&self, generators: &Generators, metadata: &PackMetadata, target: Arc<dyn BuildTarget>) {
         let items = REGISTRY.item_textures.read().unwrap().clone();
-        let output = self.output_path();
 
         for generator in generators {
-            generator.build_client_items(output.clone(), items.clone(), metadata);
+            generator.build_client_items(target.clone(), items.clone(), metadata);
         }
     }
     
-    pub fn build_blocks(&self, generators: &Generators, metadata: &PackMetadata) {
+    pub fn build_blocks(&self, generators: &Generators, metadata: &PackMetadata, target: Arc<dyn BuildTarget>) {
         let blocks = REGISTRY.blocks.read().unwrap().clone();
         
         for generator in generators {
-            generator.build_blocks(self.output_path(), blocks.clone(), metadata)
+            generator.build_blocks(target.clone(), blocks.clone(), metadata)
         }
 
-        self.build_block_textures(generators, metadata);
+        self.build_block_textures(generators, metadata, target);
     }
 
-    pub fn build_block_textures(&self, generators: &Generators, metadata: &PackMetadata) {
+    pub fn build_block_textures(&self, generators: &Generators, metadata: &PackMetadata, target: Arc<dyn BuildTarget>) {
         let blocks = REGISTRY.block_textures.read().unwrap().clone();
 
-        let output = self.output_path();
+        for generator in generators {
+            generator.build_client_blocks(target.clone(), blocks.clone(), metadata);
+        }
+    }
+
+    pub fn build_entities(&self, generators: &Generators, metadata: &PackMetadata, target: Arc<dyn BuildTarget>) {
+        let entities = REGISTRY.entities.read().unwrap().clone();
 
         for generator in generators {
-            generator.build_client_blocks(output.clone(), blocks.clone(), metadata);
+            generator.build_entities(target.clone(), entities.clone(), metadata);
         }
     }
 }
