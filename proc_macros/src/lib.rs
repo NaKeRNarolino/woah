@@ -5,6 +5,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::hash::Hash;
 use std::iter::Peekable;
+use std::path::PathBuf;
 use proc_macro2::{Group, TokenStream, TokenTree};
 use proc_macro2::token_stream::IntoIter;
 use quote::{quote, ToTokens, TokenStreamExt};
@@ -120,21 +121,38 @@ impl Parse for TemplateEncoder {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         let str = input.parse::<syn::LitStr>()?;
 
-        let path = str.value();
+        let relative_path = str.value();
 
-        let read = fs_extra::dir::get_dir_content(&path).unwrap();
+        let manifest_dir = std::env::var("CARGO_MANIFEST_DIR")
+            .map_err(|_| input.error("Failed to get CARGO_MANIFEST_DIR"))?;
 
-        let mut hm: HashMap<String, String> = HashMap::new();
+        let full_path = PathBuf::from(manifest_dir).join(&relative_path);
 
-        for r in &read.files {
-            hm.insert(
-                r.clone(),
-                fs::read_to_string(r).unwrap()
-            );
-        }
+        let mut hm = HashMap::new();
+        read_dir_recursive(&full_path, &mut hm)
+            .map_err(|e| input.error(format!("Failed to read template directory '{relative_path}': {e}")))?;
 
-        Ok(TemplateEncoder { path, read_templates: hm })
+        Ok(TemplateEncoder {
+            path: relative_path,
+            read_templates: hm,
+        })
     }
+}
+
+fn read_dir_recursive(dir: &std::path::Path, hm: &mut HashMap<String, String>) -> std::io::Result<()> {
+    if dir.is_dir() {
+        for entry in fs::read_dir(dir)? {
+            let entry = entry?;
+            let path = entry.path();
+            if path.is_dir() {
+                read_dir_recursive(&path, hm)?;
+            } else {
+                let content = fs::read_to_string(&path)?;
+                hm.insert(path.to_string_lossy().to_string(), content);
+            }
+        }
+    }
+    Ok(())
 }
 
 

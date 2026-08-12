@@ -9,6 +9,7 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
 use std::sync::{Arc, RwLock};
+use include_dir::{include_dir, Dir};
 use tera::Tera;
 use uuid::Uuid;
 use proc_macros::template_encoder;
@@ -41,11 +42,21 @@ impl WoahConfig {
     }
 }
 
+static TEMPLATES_DIR: Dir = include_dir!("$CARGO_MANIFEST_DIR/templates");
+
 lazy_static! {
     pub static ref TEMPLATES: Tera = {
         let mut tera = Tera::default();
-        
-        template_encoder!("./templates");
+
+        let templates = TEMPLATES_DIR
+            .files()
+            .filter_map(|file| {
+                let path = file.path().to_str()?;
+                let content = file.contents_utf8()?;
+                Some((path, content))
+            });
+
+        tera.add_raw_templates(templates).unwrap();
         
         tera
     };
