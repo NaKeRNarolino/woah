@@ -1,4 +1,1 @@
-"{{id}}": {
-  "type": "bool",
-  "default": {{default}}
-}
+"default": {{default}}

@@ -36,8 +36,8 @@ pub struct EntityEventComponentGroups {
 }
 
 #[derive(Clone, Debug, Builder)]
-#[builder(setter(into))]
 pub struct EntityEventQueueCommand {
+    #[builder(setter(into))]
     target: String,
     commands: Vec<String>
 }

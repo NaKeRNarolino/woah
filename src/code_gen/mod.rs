@@ -92,6 +92,7 @@ impl CodeGen {
 
     pub fn build(&self) -> anyhow::Result<()> {
         let generators = self.generators();
+        dbg!(&self.targets().len());
 
         for target in self.targets() {
             fs::create_dir_all(target.path())?;
@@ -129,7 +130,7 @@ impl CodeGen {
     }
 
     pub fn try_generate_uuid(&self) {
-        let config_path = self.cwd().join("_woah.json");
+        let config_path = self.cwd().join("cache.woah");
         if let Err(_) = fs::read_to_string(&config_path) {
             fs::write(&config_path, serde_json::to_string_pretty(&WoahConfig {
                 uuid1b: Uuid::new_v4().to_string(),

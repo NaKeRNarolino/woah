@@ -1,0 +1,5 @@
+"{{id}}": {
+  "type": "{{ty}}",
+  "client_sync": {{client_sync}},
+  {{other}}
+}

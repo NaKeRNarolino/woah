@@ -1,6 +1,7 @@
 use std::fs;
 use std::path::PathBuf;
 use std::sync::Arc;
+use log::info;
 use crate::block::Block;
 use crate::block::client::BlockTexture;
 use crate::code_gen::generator::PackGenerator;
@@ -20,8 +21,9 @@ pub struct WoahBedrockGenerator;
 
 impl PackGenerator for WoahBedrockGenerator {
     fn build_prepare(&self, target: Arc<dyn BuildTarget>, metadata: &PackMetadata) {
-        fs::create_dir_all(&metadata.bedrock_path(BedrockPath::bp(""), &target)).unwrap();
-        fs::create_dir_all(&metadata.bedrock_path(BedrockPath::rp(""), &target)).unwrap();
+        fs::create_dir_all(&metadata.bedrock_path(BedrockPath::BPRoot, &target)).unwrap();
+        fs::create_dir_all(&metadata.bedrock_path(BedrockPath::RPRoot, &target)).unwrap();
+        info!("path: {}", &metadata.bedrock_path(BedrockPath::BPRoot, &target).to_str().unwrap());
     }
 
     fn build_manifest(&self, target: Arc<dyn BuildTarget>, metadata: &PackMetadata) {
@@ -35,7 +37,7 @@ impl PackGenerator for WoahBedrockGenerator {
     }
 
     fn build_items(&self, target: Arc<dyn BuildTarget>, items: Vec<Item>, metadata: &PackMetadata) {
-        fs::create_dir_all(&metadata.bedrock_path(BedrockPath::bp("/items"), &target)).unwrap();
+        fs::create_dir_all(&metadata.bedrock_path(BedrockPath::bp("items"), &target)).unwrap();
 
         for item in items {
             let path = metadata.bedrock_path(BedrockPath::bp(format!("items/{}.json", &item.id.render_underscore())), &target);

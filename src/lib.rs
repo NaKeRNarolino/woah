@@ -29,6 +29,7 @@ use eo::sjson::HasSJsonIdent;
     use rand::random;
     use serde_json::json;
     use crate::bedrock::{BedrockTarget, TargetInstance};
+    use crate::bedrock::bedrock_generator::WoahBedrockGenerator;
     use crate::bedrock::metadata::{BedrockSpecificMetadata, BedrockSpecificMetadataBuilder, ScriptModule, ScriptModuleName};
     use crate::block::Block;
     use crate::block::client::BlockTexture;
@@ -36,11 +37,13 @@ use eo::sjson::HasSJsonIdent;
     use crate::block::permutation::BlockPermutation;
     use crate::block::state::{BlockState, BlockStateType};
     use crate::block::traits::{BlockTrait, PlacementDirectionState};
+    use crate::code_gen::generator::{GeneratorInstance, PackGenerator};
     use crate::core::build_target::BuildTarget;
     use crate::core::sprite::Sprite;
     use crate::entity::component_group::EntityComponentGroup;
     use crate::entity::Entity;
     use crate::entity::event::{EntityEvent, EntityFilter, EntityEventQueueCommand};
+    use crate::entity::property::{EntityEnumProperty, EntityIntProperty, EntityProperty};
     use crate::item::client::ItemTexture;
     use crate::molang::Molang;
     use crate::item::components::v1_26_10::*;
@@ -54,6 +57,16 @@ use eo::sjson::HasSJsonIdent;
                     @Entity {
                         id = "cool:entity";
                         components = sjson! {};
+                        properties = vec![
+                            @EntityProperty {
+                                id = "a:b";
+                                client_sync = true;
+                                property = @EntityEnumProperty {
+                                    values = map vec!["a", "b", "c"];
+                                    default = "a";
+                                }
+                            }
+                        ];
                         component_groups = vec![
                             @EntityComponentGroup {
                                 id = "cool_component_group";
@@ -86,8 +99,8 @@ use eo::sjson::HasSJsonIdent;
                                 ];
                                 queue_command = @EntityEventQueueCommand {
                                     target = "self";
-                                    command("/particle minecraft:villager_happy ~ ~ ~");
-                                    command("/scriptevent script:event");
+                                    command("/hi");
+                                    command("/bye");
                                 };
                                 set_property = sjson! {
                                     hi = 2
@@ -108,7 +121,7 @@ use eo::sjson::HasSJsonIdent;
                             @Item {
                                 id = ("woah", format!("item_{i}"));
                                 components = sjson! {
-                                    minecraft:display_name = $name
+                                    minecraft:display_name = $name,
                                 };
                             }
                         }
@@ -187,7 +200,7 @@ use eo::sjson::HasSJsonIdent;
                     description = "Smth";
                     additional = @AdditionalMetadata {
                         bedrock_specific = @BedrockSpecificMetadata {
-                            min_engine_version = (1, 26, 20);
+                            min_engine_version = (1, 26, 40);
                             script_modules = vec![
                                 @ScriptModule {
                                     name = ScriptModuleName::Server;
@@ -206,7 +219,7 @@ use eo::sjson::HasSJsonIdent;
 
         fn targets(&self) -> Vec<Arc<dyn BuildTarget>> {
             vec![
-                BedrockTarget::local("./woah/test").target()
+                BedrockTarget::develop("./woah/develop").target()
             ]
         }
     }

@@ -41,6 +41,19 @@ impl BuildTarget for BedrockTarget {
             BedrockTarget::Local { path } => path.clone()
         }
     }
+
+    fn path_keyed(&self, key: &str) -> Option<PathBuf> {
+        match &self {
+            BedrockTarget::Develop {
+                path
+            } => if key == "bp" {
+                Some(self.path().join("development_behavior_packs"))
+            } else if key == "rp" {
+                Some(self.path().join("development_resource_packs"))
+            } else { None }
+            _ => Some(self.path())
+        }
+    }
 }
 
 pub trait TargetInstance {

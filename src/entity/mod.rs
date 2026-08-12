@@ -1,6 +1,7 @@
 pub mod event;
 pub mod component_group;
 pub mod registry;
+pub mod property;
 
 use std::collections::HashMap;
 use std::marker::PhantomData;
@@ -12,6 +13,7 @@ use crate::code_gen::TEMPLATES;
 use crate::core::utilities::{Identifier, SemVer};
 use crate::entity::component_group::EntityComponentGroup;
 use crate::entity::event::EntityEvent;
+use crate::entity::property::EntityProperty;
 use crate::hold_builders;
 
 hold_builders!(Entity);
@@ -25,7 +27,8 @@ pub struct Entity {
     pub components: HashMap<String, SJsonValue>,
     #[builder(default = "Vec::new()")]
     pub events: Vec<EntityEvent>,
-    // pub properties: Vec<PhantomData<i32>>,
+    #[builder(default = "Vec::new()")]
+    pub properties: Vec<EntityProperty>,
     #[builder(default = "Vec::new()")]
     pub component_groups: Vec<EntityComponentGroup>
 }

@@ -139,7 +139,9 @@ impl Woah {
         REGISTRY.set_pack_metadata(pack.metadata());
 
         // CODE_GEN.set_output_path(pack.build_path());
-
+        CODE_GEN.set_targets(
+            pack.targets()
+        );
         CODE_GEN.set_generators(
             pack.generators()
         );

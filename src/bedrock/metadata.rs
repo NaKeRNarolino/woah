@@ -150,7 +150,9 @@ impl BedrockSerializable for AddonRp {
 
 pub enum BedrockPath {
     BP(String),
-    RP(String)
+    RP(String),
+    BPRoot,
+    RPRoot
 }
 
 impl BedrockPathResolver for PackMetadata {
@@ -173,17 +175,25 @@ pub trait BedrockPathResolver {
     fn pack_name(&self) -> &String;
 
     fn bedrock_path(&self, path: BedrockPath, target: &Arc<dyn BuildTarget>) -> PathBuf {
-        match path {
-            BedrockPath::BP(v) => target.path().join(
-                format!("/{}_BP", self.pack_name())
+        let p = match path {
+            BedrockPath::BP(v) => target.path_keyed("bp").unwrap().join(
+                format!("{}_BP", self.pack_name())
             ).join(
-                format!("/{}", v)
+                v
             ),
-            BedrockPath::RP(v) => target.path().join(
-                format!("/{}_RP", self.pack_name())
+            BedrockPath::RP(v) => target.path_keyed("rp").unwrap().join(
+                format!("{}_RP", self.pack_name())
             ).join(
-                format!("/{}", v)
+                v
+            ),
+            BedrockPath::BPRoot => target.path_keyed("bp").unwrap().join(
+                format!("{}_BP", self.pack_name())
+            ),
+            BedrockPath::RPRoot => target.path_keyed("rp").unwrap().join(
+                format!("{}_RP", self.pack_name())
             )
-        }
+        };
+
+        p
     }
 }

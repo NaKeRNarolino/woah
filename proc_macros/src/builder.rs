@@ -1,8 +1,14 @@
 use proc_macro::{Punct, TokenStream};
 use proc_macro2::{Ident, TokenStream as TokenStream2};
 use quote::{quote, ToTokens, TokenStreamExt};
-use syn::{braced, bracketed, parenthesized, parse::{Parse, ParseStream}, punctuated::Punctuated, Expr, Path, Token};
+use syn::{braced, bracketed, custom_keyword, parenthesized, parse::{Parse, ParseStream}, punctuated::Punctuated, Expr, Path, Token};
 use syn::token::Paren;
+
+mod keywords {
+    use syn::custom_keyword;
+
+    custom_keyword!(map);
+}
 
 pub struct Declaration {
     pub ident: Path,
@@ -15,7 +21,7 @@ pub struct Builder {
 }
 
 pub enum Property {
-    Expr(Ident, Expr),
+    Expr(Ident, Expr, bool),
     // Viola(Ident, Builder),
 }
 
@@ -53,7 +59,7 @@ impl Parse for Builder {
                         while !content.is_empty() && !content.peek(Token![;]) {
                             if let Ok(tt) = content.parse::<proc_macro2::TokenTree>() {
                                 if let proc_macro2::TokenTree::Ident(ident) = tt {
-                                    props.push(Property::Expr(ident, syn::parse_quote! { Default::default() }));
+                                    props.push(Property::Expr(ident, syn::parse_quote! { Default::default() }, false));
                                 }
                             }
                         }
@@ -82,8 +88,15 @@ impl Parse for Property {
             let content;
             syn::parenthesized!(content in input);
 
+            let mut maps = false;
+
+            if input.peek(keywords::map) {
+                maps = true;
+                input.parse::<keywords::map>()?;
+            }
+
             let expr = content.parse::<Expr>()?;
-            return Ok(Property::Expr(ident, expr));
+            return Ok(Property::Expr(ident, expr, maps));
             // if content.peek(Token![@]) {
             //     content.parse::<Token![@]>()?;
             //     let nested_builder = content.parse::<Builder>()?;
@@ -94,13 +107,20 @@ impl Parse for Property {
 
         if !input.peek(Token![=]) {
             let dummy_expr = syn::parse_quote! { Default::default() };
-            return Ok(Property::Expr(ident, dummy_expr));
+            return Ok(Property::Expr(ident, dummy_expr, false));
         }
 
         input.parse::<Token![=]>()?;
 
+        let mut maps = false;
+
+        if input.peek(keywords::map) {
+            maps = true;
+            input.parse::<keywords::map>()?;
+        }
+
         let expr = input.parse::<Expr>()?;
-        Ok(Property::Expr(ident, expr))
+        Ok(Property::Expr(ident, expr, maps))
         // if input.peek(Token![@]) {
         //     input.parse::<Token![@]>()?;
         //     let nested_builder = input.parse::<Builder>()?;
@@ -140,6 +160,18 @@ impl ToTokens for Builder {
 fn get_prop_val(prop: &Property) -> (&Ident, TokenStream2) {
     match prop {
         // Property::Viola(ident, val) => (ident, val.to_token_stream()),
-        Property::Expr(ident, val) => (ident, val.to_token_stream()),
+        Property::Expr(ident, val, maps) => (ident, apply_attribs(val, *maps)),
+    }
+}
+
+
+
+fn apply_attribs(val: &Expr, maps: bool) -> TokenStream2 {
+    if maps {
+        quote! {
+            #val.into_iter().map(Into::into).collect()
+        }
+    } else {
+        quote! { #val }
     }
 }
