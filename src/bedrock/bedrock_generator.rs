@@ -23,7 +23,6 @@ impl PackGenerator for WoahBedrockGenerator {
     fn build_prepare(&self, target: Arc<dyn BuildTarget>, metadata: &PackMetadata) {
         fs::create_dir_all(&metadata.bedrock_path(BedrockPath::BPRoot, &target)).unwrap();
         fs::create_dir_all(&metadata.bedrock_path(BedrockPath::RPRoot, &target)).unwrap();
-        info!("path: {}", &metadata.bedrock_path(BedrockPath::BPRoot, &target).to_str().unwrap());
     }
 
     fn build_manifest(&self, target: Arc<dyn BuildTarget>, metadata: &PackMetadata) {
@@ -105,7 +104,7 @@ impl PackGenerator for WoahBedrockGenerator {
     fn build_entities(&self, target: Arc<dyn BuildTarget>, entities: Vec<Entity>, metadata: &PackMetadata) {
         fs::create_dir_all(metadata.bedrock_path(BedrockPath::bp(format!("entities/{}", metadata.name)), &target)).unwrap();
 
-        dbg!(&entities);
+        // dbg!(&entities);
         for entity in entities {
             let path = metadata.bedrock_path(
                 BedrockPath::bp(format!("entities/{}/{}.json", metadata.name, entity.id.render_underscore())), &target

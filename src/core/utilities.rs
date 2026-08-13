@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::fmt::Display;
 use std::str::FromStr;
+use formatjson::FormatJsonError;
 use serde::{Deserialize, Serialize, Serializer};
 use crate::bedrock::BedrockSerializable;
 
@@ -183,7 +184,13 @@ pub trait JsonFormat {
 
 impl JsonFormat for String {
     fn json_format(&self) -> String {
-        formatjson::format_json(&self).unwrap()
+        match formatjson::format_json(&self) {
+            Ok(value) => value,
+            Err(err) => {
+                log::error!("A file with this contents has wrong json syntax. {}", &self);
+                self.to_string()
+            }
+        }
     }
 }
 

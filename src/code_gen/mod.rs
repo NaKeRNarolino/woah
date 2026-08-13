@@ -1,5 +1,6 @@
 pub mod generator;
 
+use std::collections::VecDeque;
 use crate::core::core_registry::REGISTRY;
 use crate::core::metadata::PackMetadata;
 use crate::core::utilities::{BedrockSerializeVec, JsonFormat};
@@ -48,15 +49,29 @@ lazy_static! {
     pub static ref TEMPLATES: Tera = {
         let mut tera = Tera::default();
 
-        let templates = TEMPLATES_DIR
-            .files()
-            .filter_map(|file| {
-                let path = file.path().to_str()?;
-                let content = file.contents_utf8()?;
-                Some((path, content))
-            });
+        let mut templates = TEMPLATES_DIR
+            .entries().into_iter().collect::<VecDeque<_>>();
 
-        tera.add_raw_templates(templates).unwrap();
+        let mut t: Vec<(String, String)> = vec![];
+
+        while !templates.is_empty() {
+            let entry = templates.pop_front().unwrap();
+            if let Some(file) = entry.as_file() {
+                let path = file.path().to_str().unwrap().to_string();
+                let raw_content = file.contents_utf8().unwrap();
+
+                let sanitized = raw_content.replace('\r', "");
+
+                t.push((path, sanitized));
+            };
+            if let Some(dir) = entry.as_dir() {
+                templates.extend(
+                    dir.entries()
+                )
+            }
+        }
+
+        tera.add_raw_templates(t).unwrap();
         
         tera
     };
@@ -103,7 +118,6 @@ impl CodeGen {
 
     pub fn build(&self) -> anyhow::Result<()> {
         let generators = self.generators();
-        dbg!(&self.targets().len());
 
         for target in self.targets() {
             fs::create_dir_all(target.path())?;

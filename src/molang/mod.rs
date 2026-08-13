@@ -13,7 +13,7 @@ enum MolangConcat {
 /// ```rust
 /// use woah::molang::Molang;
 ///
-/// Molang::new("q.x") & (Molang::new("q.y") | Molang::new("q.z"))
+/// Molang::new("q.x") & (Molang::new("q.y") | Molang::new("q.z"));
 /// ```
 #[derive(Clone, Debug)]
 pub struct Molang {
